@@ -8,8 +8,8 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-playground/validator"
 	"github.com/go-zoo/bone"
-	"gitlab.com/renodesper/gokit-microservices/endpoint"
-	e "gitlab.com/renodesper/gokit-microservices/util/error"
+	"gitlab.com/renodesper/gokit-microservices/pkg/endpoint"
+	e "gitlab.com/renodesper/gokit-microservices/pkg/util/error"
 )
 
 type (

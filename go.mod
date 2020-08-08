@@ -8,6 +8,6 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-zoo/bone v1.3.0
 	github.com/leodido/go-urn v1.2.0 // indirect
-	github.com/rs/cors v1.7.0 // indirect
-	github.com/spf13/viper v1.7.1 // indirect
+	github.com/rs/cors v1.7.0
+	github.com/spf13/viper v1.7.1
 )

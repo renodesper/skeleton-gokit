@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"flag"
@@ -8,9 +8,9 @@ import (
 
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
-	api "gitlab.com/renodesper/gokit-microservices/endpoint"
-	"gitlab.com/renodesper/gokit-microservices/service"
-	httptransport "gitlab.com/renodesper/gokit-microservices/transport/http"
+	api "gitlab.com/renodesper/gokit-microservices/pkg/endpoint"
+	"gitlab.com/renodesper/gokit-microservices/pkg/service"
+	httptransport "gitlab.com/renodesper/gokit-microservices/pkg/transport/http"
 )
 
 var (
@@ -42,7 +42,8 @@ func init() {
 	}
 }
 
-func main() {
+// Run ...
+func Run() {
 	env := viper.GetString("app.env")
 	level := viper.GetString("log.level")
 
