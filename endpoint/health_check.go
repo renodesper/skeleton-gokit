@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
-	"gitlab.com/renodesper/gokit-microservices/pkg/service"
+	"gitlab.com/renodesper/gokit-microservices/service"
 )
 
 // MakeHealthCheckEndpoint ...
