@@ -18,6 +18,14 @@ Setup the project and install gokit packages:
 
 ## Run the app
 
+Run the main go file:
+
     ```sh
-    go run userd/user.go
+    go run cmd/main.go
+    ```
+
+Use Makefile:
+
+    ```sh
+    make run
     ```
