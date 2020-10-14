@@ -22,42 +22,10 @@ var (
 	port *int
 )
 
-func init() {
-	port = flag.Int("port", 8000, "port")
-	host = flag.String("host", "0.0.0.0", "host")
-	configFile := flag.String("config", "config/env/development.toml", "configuration path")
-	flag.Parse()
-
-	viper.SetConfigFile(*configFile)
-	viper.BindEnv("app.env", "ENV")
-	viper.BindEnv("log.level", "LOG_LEVEL")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	if p := viper.GetInt("app.port"); p != 0 {
-		port = &p
-	}
-
-	// if viper.GetString("app.env") != "development" {
-	// 	fmt.Println("Do something when env is not development")
-	// }
-}
-
-func initLogger(env, level string) (logger.Logger, error) {
-	z, err := zap.CreateLogger(env, level)
-	if err != nil {
-		return nil, err
-	}
-
-	ls := logger.New(z)
-	return ls, nil
-}
-
 // Run ...
 func Run() {
+	initConfig()
+
 	env := viper.GetString("app.env")
 	level := viper.GetString("log.level")
 
@@ -98,4 +66,38 @@ func Run() {
 	}()
 
 	logger.Error(<-errChan)
+}
+
+func initConfig() {
+	port = flag.Int("port", 8000, "port")
+	host = flag.String("host", "0.0.0.0", "host")
+	configFile := flag.String("config", "config/env/development.toml", "configuration path")
+	flag.Parse()
+
+	viper.SetConfigFile(*configFile)
+	viper.BindEnv("app.env", "ENV")
+	viper.BindEnv("log.level", "LOG_LEVEL")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	if p := viper.GetInt("app.port"); p != 0 {
+		port = &p
+	}
+
+	// if viper.GetString("app.env") != "development" {
+	// 	fmt.Println("Do something when env is not development")
+	// }
+}
+
+func initLogger(env, level string) (logger.Logger, error) {
+	z, err := zap.CreateLogger(env, level)
+	if err != nil {
+		return nil, err
+	}
+
+	ls := logger.New(z)
+	return ls, nil
 }
