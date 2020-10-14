@@ -3,6 +3,7 @@ BUILD_DIR   	:= build
 SHELL 		  	:= /bin/bash
 GOPKGS				:= $(shell go list ./... | grep -v /vendor/)
 BINARY 	      := skeleton
+CGO_ENABLED   := 1
 
 ifndef GOOS
   GOOS := $(shell go env GOHOSTOS)
