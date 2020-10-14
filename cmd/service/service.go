@@ -43,7 +43,7 @@ func Run() {
 
 	endpoint := api.New(svc, env)
 
-	handler := httptransport.MakeHTTPHandler(endpoint)
+	handler := httptransport.NewHTTPHandler(endpoint)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedHeaders:   []string{"*"},

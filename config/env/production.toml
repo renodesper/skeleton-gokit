@@ -1,6 +1,7 @@
 [app]
 port = 6900
 env = "production"
+version = "1.0"
 
 [log]
 level = "debug"
