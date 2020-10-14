@@ -40,13 +40,13 @@ func createConfig(env string, level string) *zap.Config {
 	}
 
 	switch level {
-	case "debug":
+	case logger.Debug:
 		cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	case "info":
+	case logger.Info:
 		cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
-	case "warn":
+	case logger.Warn:
 		cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
-	case "error":
+	case logger.Error:
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 	}
 

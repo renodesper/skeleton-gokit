@@ -21,6 +21,17 @@ type Loggers struct {
 	Ls []Logger
 }
 
+const (
+	// Debug ...
+	Debug = "debug"
+	// Info ...
+	Info = "info"
+	// Warn ...
+	Warn = "warn"
+	// Error ...
+	Error = "error"
+)
+
 // Debug implements Logger.Debug
 func (ls *Loggers) Debug(args ...interface{}) {
 	for _, l := range ls.Ls {
