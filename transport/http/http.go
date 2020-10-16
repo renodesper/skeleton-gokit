@@ -48,7 +48,7 @@ func NewHTTPHandler(endpoints endpoint.Set) http.Handler {
 	// NOTE: Empty middlewares for the sake of example
 	middlewares := m.Middlewares{
 		Before: []kitendpoint.Middleware{},
-		After: []kitendpoint.Middleware{},
+		After:  []kitendpoint.Middleware{},
 	}
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(
@@ -78,7 +78,7 @@ func decodeAndValidate(r *http.Request, model interface{}) error {
 
 // decodeNothing returns (nil, nil) as placeholder for httptransport.DecodeRequestFunc
 func decodeNothing(_ context.Context, r *http.Request) (interface{}, error) {
-		/*
+	/*
 		What we usually do in here:
 		- Get query params
 		- Create an instance of struct to be return to endpoint

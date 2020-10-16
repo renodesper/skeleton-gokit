@@ -1,6 +1,6 @@
 [app]
-port = 6901
 env = "development"
+port = 6901
 version = "1.0"
 
 [log]

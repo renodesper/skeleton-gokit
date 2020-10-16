@@ -11,7 +11,7 @@ type (
 	// ErrorResponse ...
 	ErrorResponse struct {
 		Errors []e.Error `json:"errors"`
-		Meta  e.Meta    `json:"meta"`
+		Meta   e.Meta    `json:"meta"`
 	}
 
 	// SuccessResponse ...
