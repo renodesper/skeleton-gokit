@@ -35,6 +35,7 @@ func createConfig(env string, level string) *zap.Config {
 		cfg = zap.NewDevelopmentConfig()
 		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		cfg.EncoderConfig.EncodeTime = nil
+		cfg.EncoderConfig.TimeKey = ""
 	} else {
 		cfg = zap.NewProductionConfig()
 	}
