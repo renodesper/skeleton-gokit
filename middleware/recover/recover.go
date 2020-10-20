@@ -1,0 +1,33 @@
+package recover
+
+import (
+	"context"
+	"errors"
+
+	"github.com/go-kit/kit/endpoint"
+	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+)
+
+// CreateMiddleware ...
+func CreateMiddleware() endpoint.Middleware {
+	return func(next endpoint.Endpoint) endpoint.Endpoint {
+		return func(ctx context.Context, request interface{}) (result interface{}, e error) {
+			defer func() {
+				if r := recover(); r != nil {
+					msg, ok := r.(string)
+					if !ok {
+						err, ok := r.(error)
+						if ok {
+							msg = err.Error()
+						} else {
+							msg = "Unexpected panic"
+						}
+					}
+					e = errs.UnexpectedPanic.Wrap(errors.New(msg))
+				}
+			}()
+
+			return next(ctx, request)
+		}
+	}
+}

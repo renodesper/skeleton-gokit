@@ -29,21 +29,21 @@ func Run() {
 	env := viper.GetString("app.env")
 	level := viper.GetString("log.level")
 
-	logger, err := initLogger(env, level)
+	log, err := initLogger(env, level)
 	if err != nil {
 		return
 	}
 
-	logger.Infof("Enviroment: %s", env)
-	logger.Infof("HTTP url: http://%s:%d", *host, *port)
-	logger.Infof("Log level: %s", level)
+	log.Infof("Enviroment: %s", env)
+	log.Infof("HTTP url: http://%s:%d", *host, *port)
+	log.Infof("Log level: %s", level)
 
 	svc := service.New()
 	// svc = instrumentingMiddleware{svc, requestCount, requestLatency, countResult}
 
 	endpoint := api.New(svc, env)
 
-	handler := httptransport.NewHTTPHandler(endpoint)
+	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedHeaders:   []string{"*"},
@@ -55,7 +55,7 @@ func Run() {
 	server := &http.Server{Addr: fmt.Sprintf("%s:%d", *host, *port), Handler: handler}
 
 	go func() {
-		logger.Info("Service started!")
+		log.Info("Service started!")
 		errChan <- server.ListenAndServe()
 	}()
 
@@ -65,7 +65,7 @@ func Run() {
 		errChan <- fmt.Errorf("%s", <-c)
 	}()
 
-	logger.Error(<-errChan)
+	log.Error(<-errChan)
 }
 
 func initConfig() {

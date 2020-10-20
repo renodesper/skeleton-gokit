@@ -12,9 +12,11 @@ import (
 	"github.com/spf13/viper"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	m "gitlab.com/renodesper/gokit-microservices/middleware"
+	"gitlab.com/renodesper/gokit-microservices/middleware/recover"
 	ctxutil "gitlab.com/renodesper/gokit-microservices/util/ctx"
 	e "gitlab.com/renodesper/gokit-microservices/util/error"
-	"gitlab.com/renodesper/gokit-microservices/util/errors"
+	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/logger"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
 )
 
@@ -24,7 +26,7 @@ var (
 )
 
 // NewHTTPHandler ...
-func NewHTTPHandler(endpoints endpoint.Set) http.Handler {
+func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	r := bone.New()
 
 	// NOTE: Will be executed on the HTTP request object before the request is decoded
@@ -47,8 +49,10 @@ func NewHTTPHandler(endpoints endpoint.Set) http.Handler {
 
 	// NOTE: Empty middlewares for the sake of example
 	middlewares := m.Middlewares{
-		Before: []kitendpoint.Middleware{},
-		After:  []kitendpoint.Middleware{},
+		Before: []kitendpoint.Middleware{
+			recover.CreateMiddleware(),
+		},
+		After: []kitendpoint.Middleware{},
 	}
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(
@@ -64,13 +68,13 @@ func NewHTTPHandler(endpoints endpoint.Set) http.Handler {
 // decodeAndValidate will decode and validate the request based on the provided model
 func decodeAndValidate(r *http.Request, model interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(&model); err != nil {
-		return errors.AU1003
+		return errs.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(model); err != nil {
-		return errors.AU1002
+		return errs.InvalidRequest
 	}
 
 	return nil
@@ -119,9 +123,10 @@ func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 
 	requestID := ctxutil.GetRequestID(ctx)
 
+	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(&resp.ErrorResponse{
-		Errors: []e.Error{errors.AU1001},
+		Errors: []e.Error{errs.StatusBadRequest},
 		Meta:   resp.PopulateMeta(requestID),
 	})
 }
@@ -130,7 +135,7 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusNotFound)
 	json.NewEncoder(w).Encode(&resp.ErrorResponse{
-		Errors: []e.Error{errors.AU1000.WithoutStackTrace()},
+		Errors: []e.Error{errs.StatusNotFound.WithoutStackTrace()},
 		Meta:   resp.PopulateMeta(r.Header.Get("X-Request-Id")),
 	})
 }
