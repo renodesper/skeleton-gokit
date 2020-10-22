@@ -39,10 +39,7 @@ func Run() {
 	log.Infof("Log level: %s", level)
 
 	svc := service.New()
-	// svc = instrumentingMiddleware{svc, requestCount, requestLatency, countResult}
-
 	endpoint := api.New(svc, env)
-
 	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
