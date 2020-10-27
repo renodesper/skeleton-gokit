@@ -7,6 +7,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-redis/redis/v8 v8.3.2
 	github.com/go-zoo/bone v1.3.0
 	github.com/google/uuid v1.1.2
 	github.com/json-iterator/go v1.1.10

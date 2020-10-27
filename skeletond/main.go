@@ -1,4 +1,4 @@
-package service
+package main
 
 import (
 	"flag"
@@ -23,7 +23,7 @@ var (
 )
 
 // Run ...
-func Run() {
+func main() {
 	initConfig()
 
 	env := viper.GetString("app.env")
