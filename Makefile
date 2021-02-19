@@ -3,6 +3,7 @@ VERSION?=0.0.1
 SERVICE_PORT?=8000
 DOCKER_REGISTRY?= #if set it should finished by /
 EXPORT_RESULT?=false # for CI please set EXPORT_RESULT to true
+BUILD_DIR=build
 
 GOCMD=go
 GOTEST=$(GOCMD) test
@@ -41,7 +42,7 @@ endif
 
 clean:
 	rm -fr ./bin
-	rm -fr ./out
+	rm -fr ./build
 	rm -f ./junit-report.xml checkstyle-report.xml ./coverage.xml ./profile.cov yamllint-checkstyle.xml
 
 test:
@@ -64,8 +65,8 @@ vendor:
 	$(GOCMD) mod vendor
 
 build:
-	mkdir -p out/bin
-	GO111MODULE=on $(GOCMD) build -mod vendor -o out/bin/$(BINARY_NAME) .
+	mkdir -p $(BUILD_DIR)
+	GO111MODULE=on $(GOCMD) build -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
 
 docker-build:
 	docker build --rm --tag $(BINARY_NAME) .
@@ -87,7 +88,7 @@ help:
 	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
 	@echo ''
 	@echo 'Targets:'
-	@echo "  ${YELLOW}build           ${RESET} ${GREEN}Build your project and put the output binary in out/bin/$(BINARY_NAME)${RESET}"
+	@echo "  ${YELLOW}build           ${RESET} ${GREEN}Build your project and put the output binary in $(BUILD_DIR)/$(BINARY_NAME)${RESET}"
 	@echo "  ${YELLOW}clean           ${RESET} ${GREEN}Remove build related file${RESET}"
 	@echo "  ${YELLOW}coverage        ${RESET} ${GREEN}Run the tests of the project and export the coverage${RESET}"
 	@echo "  ${YELLOW}docker-build    ${RESET} ${GREEN}Use the dockerfile to build the container (name: $(BINARY_NAME))${RESET}"

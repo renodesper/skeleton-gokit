@@ -1,7 +1,7 @@
 [app]
 env = "production"
-port = 6900
-version = "1.0"
+port = 8000
+version = "0.0.1"
 
 [log]
-level = "debug"
+level = "info"
