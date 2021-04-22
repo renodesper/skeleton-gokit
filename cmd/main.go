@@ -8,9 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/go-pg/pg/v10"
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
 	api "gitlab.com/renodesper/gokit-microservices/endpoint"
+
+	"gitlab.com/renodesper/gokit-microservices/repository/postgre"
 	"gitlab.com/renodesper/gokit-microservices/service"
 	httptransport "gitlab.com/renodesper/gokit-microservices/transport/http"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
@@ -18,8 +21,10 @@ import (
 )
 
 var (
-	host *string
-	port *int
+	host   *string
+	port   *int
+	dbUri  *string
+	dbName *string
 )
 
 // Run ...
@@ -38,8 +43,18 @@ func main() {
 	log.Infof("HTTP url: http://%s:%d", *host, *port)
 	log.Infof("Log level: %s", level)
 
-	svc := service.New()
-	endpoint := api.New(svc, env)
+	dbUsername := viper.GetString("db.username")
+	dbPassword := viper.GetString("db.password")
+	dbHost := viper.GetString("db.host")
+	dbPort := viper.GetInt("db.port")
+	dbName := viper.GetString("db.name")
+	db := initDB(dbUsername, dbPassword, dbHost, dbPort, dbName)
+	defer db.Close()
+
+	healthSvc := service.NewHealthService()
+	userSvc := service.NewUserService(db)
+
+	endpoint := api.New(healthSvc, userSvc, env)
 	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -84,9 +99,10 @@ func initConfig() {
 		port = &p
 	}
 
-	// if viper.GetString("app.env") != "development" {
-	// 	fmt.Println("Do something when env is not development")
-	// }
+	if viper.GetString("app.env") != "production" {
+		fmt.Println("\n> You're not in production mode")
+		fmt.Println()
+	}
 }
 
 func initLogger(env, level string) (logger.Logger, error) {
@@ -97,4 +113,9 @@ func initLogger(env, level string) (logger.Logger, error) {
 
 	ls := logger.New(z)
 	return ls, nil
+}
+
+func initDB(username, password, host string, port int, dbName string) *pg.DB {
+	db := postgre.NewPostgreClient(username, password, host, port, dbName)
+	return db
 }

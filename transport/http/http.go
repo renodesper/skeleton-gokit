@@ -54,6 +54,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		},
 		After: []kitendpoint.Middleware{},
 	}
+
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(
 		GetHealthCheckEndpoint,
@@ -62,43 +63,35 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		serverOpts...,
 	))
 
+	CreateUserEndpoint := m.Chain(middlewares)(endpoints.CreateUserEndpoint)
+	r.Post("/users", httptransport.NewServer(
+		CreateUserEndpoint,
+		decodeCreateUserRequest,
+		encodeResponse,
+		serverOpts...,
+	))
+
+	GetAllUsersEndpoint := m.Chain(middlewares)(endpoints.GetAllUsersEndpoint)
+	r.Get("/users", httptransport.NewServer(
+		GetAllUsersEndpoint,
+		decodeGetAllUsersRequest,
+		encodeResponse,
+		serverOpts...,
+	))
+
+	GetUserEndpoint := m.Chain(middlewares)(endpoints.GetUserEndpoint)
+	r.Get("/users/:id", httptransport.NewServer(
+		GetUserEndpoint,
+		decodeGetUserRequest,
+		encodeResponse,
+		serverOpts...,
+	))
+
 	return r
-}
-
-// decodeAndValidate will decode and validate the request based on the provided model
-func decodeAndValidate(r *http.Request, model interface{}) error {
-	if err := json.NewDecoder(r.Body).Decode(&model); err != nil {
-		return errs.UnparsableJSON
-	}
-	defer r.Body.Close()
-
-	validate = validator.New()
-	if err := validate.Struct(model); err != nil {
-		return errs.InvalidRequest
-	}
-
-	return nil
 }
 
 // decodeNothing returns (nil, nil) as placeholder for httptransport.DecodeRequestFunc
 func decodeNothing(_ context.Context, r *http.Request) (interface{}, error) {
-	/*
-		What we usually do in here:
-		- Get query params
-		- Create an instance of struct to be return to endpoint
-
-		Example:
-
-		id := r.URL.Query().Get("id")
-		name := r.URL.Query().Get("name")
-
-		userRequest := endpoint.UserRequest{
-			ID: id,
-			Name: name,
-		}
-
-		return userRequest, nil
-	*/
 	return nil, nil
 }
 
@@ -126,7 +119,7 @@ func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(&resp.ErrorResponse{
-		Errors: []e.Error{errs.StatusBadRequest},
+		Errors: []e.Error{er},
 		Meta:   resp.PopulateMeta(requestID),
 	})
 }
