@@ -66,7 +66,8 @@ vendor:
 
 build:
 	mkdir -p $(BUILD_DIR)
-	GO111MODULE=on $(GOCMD) build -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
+	rm -rf $(BUILD_DIR)/*
+	CGO_ENABLED=0 GO111MODULE=on $(GOCMD) build -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
 
 docker-build:
 	docker build --rm --tag $(BINARY_NAME) .
@@ -79,8 +80,7 @@ docker-release:
 	docker push $(DOCKER_REGISTRY)$(BINARY_NAME):$(VERSION)
 
 watch:
-	$(eval PACKAGE_NAME=$(shell head -n 1 go.mod | cut -d ' ' -f2))
-	docker run -it --rm -w /go/src/$(PACKAGE_NAME) -v $(shell pwd):/go/src/$(PACKAGE_NAME) -p $(SERVICE_PORT):$(SERVICE_PORT) cosmtrek/air
+	@echo '"${YELLOW}watch${RESET}" target is not implemented yet'
 
 help:
 	@echo ''
