@@ -7,16 +7,16 @@ import (
 	"gitlab.com/renodesper/gokit-microservices/service"
 )
 
-// HealthCheckResponse ...
 type HealthCheckResponse struct {
 	Version string `json:"version"`
 }
 
 // MakeHealthCheckEndpoint ...
-func MakeHealthCheckEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeHealthCheckEndpoint(svc service.HealthService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		version := svc.Check()
 		return HealthCheckResponse{
-			Version: svc.HealthCheck(),
+			Version: version,
 		}, nil
 	}
 }
