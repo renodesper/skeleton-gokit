@@ -64,7 +64,7 @@ func (e Error) AppendError(err error) Error {
 	return Error{
 		Status:  e.Status,
 		Code:    e.Code,
-		Message: fmt.Sprintf("%s: %s", e.Message, err.Error()),
+		Message: fmt.Sprintf("%s: %s", e.Error(), err.Error()),
 		Trace:   errors.Wrap(err, 1).ErrorStack(),
 	}
 }

@@ -9,11 +9,16 @@ import (
 
 var (
 	// UnexpectedPanic returned when there is an unexpected panic
-	UnexpectedPanic = error.NewError(http.StatusInternalServerError, "AU9999", fmt.Errorf("Unexpected panic"))
+	UnexpectedPanic = error.NewError(http.StatusInternalServerError, "ER9999", fmt.Errorf("Unexpected panic"))
 
 	// StatusNotFound returned when client try to access undefined endpoint
-	StatusNotFound = error.NewError(http.StatusNotFound, "AU9998", fmt.Errorf(http.StatusText(http.StatusNotFound)))
+	StatusNotFound = error.NewError(http.StatusNotFound, "ER9998", fmt.Errorf(http.StatusText(http.StatusNotFound)))
 
 	// StatusBadRequest returned when ...
-	StatusBadRequest = error.NewError(http.StatusBadRequest, "AU9997", fmt.Errorf(http.StatusText(http.StatusBadRequest)))
+	StatusBadRequest = error.NewError(http.StatusBadRequest, "ER9997", fmt.Errorf(http.StatusText(http.StatusBadRequest)))
+)
+
+var (
+	// InvalidCursor returned when the cursor for pagination is invalid
+	InvalidCursor = error.NewError(http.StatusNotFound, "ER9901", fmt.Errorf("Cursor is invalid"))
 )

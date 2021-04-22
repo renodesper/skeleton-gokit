@@ -7,18 +7,22 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-// User ...
-type User struct {
-	ID        uuid.UUID
-	Username  string
-	Email     string
-	Password  string
-	IsActive  bool
-	IsDeleted bool
-	IsAdmin   bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
+type (
+	User struct {
+		ID           uuid.UUID `db:"id" json:"id"`
+		Username     string    `db:"username" json:"username"`
+		Email        string    `db:"email" validate:"email" json:"email" validate:"email"`
+		Password     string    `db:"password" json:"password"`
+		IsActive     bool      `db:"isActive" json:"isActive"`
+		IsDeleted    bool      `db:"isDeleted" json:"isDeleted"`
+		IsAdmin      bool      `db:"isAdmin" json:"isAdmin"`
+		AccessToken  string    `db:"accessToken" json:"accessToken"`
+		RefreshToken string    `db:"refreshToken" json:"refreshToken"`
+		ExpiredAt    time.Time `db:"expiredAt" json:"expiredAt"`
+		CreatedAt    time.Time `db:"createdAt" json:"createdAt"`
+		UpdatedAt    time.Time `db:"updatedAt" json:"updatedAt"`
+	}
+)
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
