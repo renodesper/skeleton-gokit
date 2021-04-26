@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/go-zoo/bone"
+	"github.com/google/uuid"
 	"github.com/iancoleman/strcase"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
@@ -69,9 +70,149 @@ func decodeGetAllUsersRequest(_ context.Context, r *http.Request) (interface{}, 
 }
 
 func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	ID := bone.GetValue(r, "id")
+	IDStr := bone.GetValue(r, "id")
 
 	var req endpoint.GetUserRequest
+
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.UpdateUserRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.SetAccessTokenRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeSetUserStatusRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.SetUserStatusRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeSetUserRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.SetUserRoleRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeSetUserExpiryEndpoint(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.SetUserExpiryRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
+func decodeDeleteUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.GetUserRequest
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
 	req.ID = ID
 
 	return req, nil
