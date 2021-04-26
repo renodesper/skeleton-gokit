@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
 	"gitlab.com/renodesper/gokit-microservices/repository"
 	"gitlab.com/renodesper/gokit-microservices/repository/postgre"
+	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,8 +16,14 @@ type (
 	// UserService ...
 	UserService interface {
 		GetAllUsers(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.User, error)
-		GetUser(ctx context.Context, userIDStr string) (*repository.User, error)
-		CreateUser(ctx context.Context, req *CreateUserRequest) (uuid.UUID, error)
+		GetUser(ctx context.Context, userID uuid.UUID) (*repository.User, error)
+		CreateUser(ctx context.Context, payload *CreateUserRequest) (*repository.User, error)
+		UpdateUser(ctx context.Context, userID uuid.UUID, payload *UpdateUserRequest) (*repository.User, error)
+		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error)
+		SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error)
+		SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error)
+		SetUserExpiry(ctx context.Context, userID uuid.UUID, expiredAt time.Time) (*repository.User, error)
+		DeleteUser(ctx context.Context, userID uuid.UUID) (*repository.User, error)
 	}
 
 	UserSvc struct {
@@ -30,6 +38,9 @@ type (
 	}
 
 	UpdateUserRequest struct {
+		Username string
+		Email    string
+		Password string
 	}
 )
 
@@ -56,13 +67,8 @@ func (us *UserSvc) GetAllUsers(ctx context.Context, sortBy string, sort string, 
 	return users, nil
 }
 
-func (us *UserSvc) GetUser(ctx context.Context, userIDStr string) (*repository.User, error) {
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := us.User.GetUser(ctx, userID)
+func (us *UserSvc) GetUser(ctx context.Context, userID uuid.UUID) (*repository.User, error) {
+	user, err := us.User.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,35 +76,132 @@ func (us *UserSvc) GetUser(ctx context.Context, userIDStr string) (*repository.U
 	return user, nil
 }
 
-func (us *UserSvc) CreateUser(ctx context.Context, req *CreateUserRequest) (uuid.UUID, error) {
+func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (*repository.User, error) {
+	if payload.Email != "" {
+		user, _ := us.User.GetUserByEmail(ctx, payload.Email)
+
+		if user != nil {
+			return nil, errors.FailedEmailExist
+		}
+	}
+
+	if payload.Username != "" {
+		user, _ := us.User.GetUserByUsername(ctx, payload.Username)
+
+		if user != nil {
+			return nil, errors.FailedUsernameExist
+		}
+	}
+
 	ID := uuid.New()
 
-	password, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	password, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return uuid.UUID{}, err
+		return nil, err
 	}
 
 	userPayload := repository.User{
 		ID:        ID,
-		Username:  req.Username,
-		Email:     req.Email,
+		Username:  payload.Username,
+		Email:     payload.Email,
 		Password:  string(password),
 		IsActive:  false,
 		IsDeleted: false,
-		IsAdmin:   req.IsAdmin,
+		IsAdmin:   payload.IsAdmin,
 	}
-	userID, err := us.User.CreateUser(ctx, &userPayload)
+	user, err := us.User.CreateUser(ctx, &userPayload)
 	if err != nil {
-		return userID, err
+		return nil, err
 	}
 
-	return userID, nil
+	return user, nil
 }
 
-func (us *UserSvc) UpdateUser(ctx context.Context, req *UpdateUserRequest) (*repository.User, error) {
-	return nil, nil
+func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *UpdateUserRequest) (*repository.User, error) {
+	if payload.Email != "" {
+		user, _ := us.User.GetUserByEmail(ctx, payload.Email)
+
+		if user != nil && userID != user.ID {
+			return nil, errors.FailedEmailExist
+		}
+	}
+
+	if payload.Username != "" {
+		user, _ := us.User.GetUserByUsername(ctx, payload.Username)
+
+		if user != nil && userID != user.ID {
+			return nil, errors.FailedUsernameExist
+		}
+	}
+
+	var userPayload = make(map[string]interface{})
+
+	if payload.Username != "" {
+		userPayload["username"] = payload.Username
+	}
+
+	if payload.Email != "" {
+		userPayload["email"] = payload.Email
+	}
+
+	if payload.Password != "" {
+		password, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+
+		userPayload["password"] = password
+	}
+
+	user, err := us.User.UpdateUser(ctx, userID, userPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
-func (us *UserSvc) DeleteUser(ctx context.Context, userID string) (*repository.User, error) {
-	return nil, nil
+func (us *UserSvc) SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error) {
+	user, err := us.User.SetAccessToken(ctx, userID, accessToken, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserSvc) SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error) {
+	user, err := us.User.SetUserStatus(ctx, userID, isActive)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserSvc) SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error) {
+	user, err := us.User.SetUserRole(ctx, userID, isAdmin)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserSvc) SetUserExpiry(ctx context.Context, userID uuid.UUID, expiredAt time.Time) (*repository.User, error) {
+	user, err := us.User.SetUserExpiry(ctx, userID, expiredAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserSvc) DeleteUser(ctx context.Context, userID uuid.UUID) (*repository.User, error) {
+	user, err := us.User.DeleteUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
