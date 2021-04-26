@@ -1,14 +1,20 @@
 [app]
 env = "development"
-port = 8000
+scheme = "http"
+host = "aitheria.com"
+port = 3000
 version = "0.0.1"
 
 [db]
 username = "user"
 password = "password"
-host = "127.0.0.1"
+host = "0.0.0.0"
 port = 5432
 name = "project"
 
 [log]
 level = "debug"
+
+[google]
+client_id = "931375941509-4bvpoo37t11r8g2ivif564p867t44927.apps.googleusercontent.com"
+client_secret = "ZKVuAm0ejYqZ1l03WzCXlHT_"

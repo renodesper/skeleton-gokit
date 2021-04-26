@@ -61,7 +61,6 @@ type (
 	}
 )
 
-// MakeCreateUserEndpoint ...
 func MakeCreateUserEndpoint(svc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CreateUserRequest)

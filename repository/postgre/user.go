@@ -16,9 +16,9 @@ type (
 	UserRepository interface {
 		GetAllUsers(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.User, error)
 		GetAllUsersByCursor(ctx context.Context, cursor string, direction string, limit int, sort string) ([]repository.User, error)
-		GetUserByID(ctx context.Context, userID uuid.UUID) (*repository.User, error)
-		GetUserByEmail(ctx context.Context, email string) (*repository.User, error)
-		GetUserByUsername(ctx context.Context, username string) (*repository.User, error)
+		GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error)
+		GetUserByEmail(ctx context.Context, email string, opts repository.UserOptions) (*repository.User, error)
+		GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error)
 		CreateUser(ctx context.Context, userPayload *repository.User) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error)
 		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error)
@@ -103,10 +103,24 @@ func (ur *UserRepo) GetAllUsersByCursor(ctx context.Context, sort string, direct
 }
 
 // GetUserByID ...
-func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID) (*repository.User, error) {
+func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	err := ur.Db.Model(&user).Where("id = ?", userID).Select()
+	sql := ur.Db.Model(&user).Where("id = ?", userID)
+	if opts.IsActive != nil {
+		sql.Where("is_active = ?", *opts.IsActive)
+	}
+	if opts.IsDeleted != nil {
+		sql.Where("is_deleted = ?", *opts.IsDeleted)
+	}
+	if opts.IsAdmin != nil {
+		sql.Where("is_admin = ?", *opts.IsAdmin)
+	}
+	if opts.CreatedFrom != nil {
+		sql.Where("created_from = ?", *opts.CreatedFrom)
+	}
+
+	err := sql.Select()
 	if err != nil {
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
@@ -115,10 +129,24 @@ func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID) (*reposit
 }
 
 // GetUserByEmail ...
-func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string) (*repository.User, error) {
+func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	err := ur.Db.Model(&user).Where("email = ?", email).Select()
+	sql := ur.Db.Model(&user).Where("email = ?", email)
+	if opts.IsActive != nil {
+		sql.Where("is_active = ?", *opts.IsActive)
+	}
+	if opts.IsDeleted != nil {
+		sql.Where("is_deleted = ?", *opts.IsDeleted)
+	}
+	if opts.IsAdmin != nil {
+		sql.Where("is_admin = ?", *opts.IsAdmin)
+	}
+	if opts.CreatedFrom != nil {
+		sql.Where("created_from = ?", *opts.CreatedFrom)
+	}
+
+	err := sql.Select()
 	if err != nil {
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
@@ -127,10 +155,24 @@ func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string) (*reposito
 }
 
 // GetUserByUsername ...
-func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string) (*repository.User, error) {
+func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	err := ur.Db.Model(&user).Where("username = ?", username).Select()
+	sql := ur.Db.Model(&user).Where("username = ?", username)
+	if opts.IsActive != nil {
+		sql.Where("is_active = ?", *opts.IsActive)
+	}
+	if opts.IsDeleted != nil {
+		sql.Where("is_deleted = ?", *opts.IsDeleted)
+	}
+	if opts.IsAdmin != nil {
+		sql.Where("is_admin = ?", *opts.IsAdmin)
+	}
+	if opts.CreatedFrom != nil {
+		sql.Where("created_from = ?", *opts.CreatedFrom)
+	}
+
+	err := sql.Select()
 	if err != nil {
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}

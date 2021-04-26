@@ -1,10 +1,11 @@
 INSERT INTO
-  users (username, email, password, is_active, is_admin)
+  users (username, email, password, is_active, is_admin, created_from)
 VALUES
   (
     'admin',
-    'me@renodesper.com',
+    'boy.arriezona@gmail.com',
     uuid_generate_v4(),
     TRUE,
-    TRUE
+    TRUE,
+    'DBMigration'
   )

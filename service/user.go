@@ -9,6 +9,7 @@ import (
 	"gitlab.com/renodesper/gokit-microservices/repository"
 	"gitlab.com/renodesper/gokit-microservices/repository/postgre"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/logger"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,6 +28,7 @@ type (
 	}
 
 	UserSvc struct {
+		Log  logger.Logger
 		User postgre.UserRepository
 	}
 
@@ -45,9 +47,10 @@ type (
 )
 
 // NewUserService creates user service
-func NewUserService(db *pg.DB) UserService {
+func NewUserService(log logger.Logger, db *pg.DB) UserService {
 	userRepo := postgre.CreateUserRepository(db)
 	return &UserSvc{
+		Log:  log,
 		User: userRepo,
 	}
 }
@@ -68,7 +71,7 @@ func (us *UserSvc) GetAllUsers(ctx context.Context, sortBy string, sort string, 
 }
 
 func (us *UserSvc) GetUser(ctx context.Context, userID uuid.UUID) (*repository.User, error) {
-	user, err := us.User.GetUserByID(ctx, userID)
+	user, err := us.User.GetUserByID(ctx, userID, repository.UserOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +81,7 @@ func (us *UserSvc) GetUser(ctx context.Context, userID uuid.UUID) (*repository.U
 
 func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (*repository.User, error) {
 	if payload.Email != "" {
-		user, _ := us.User.GetUserByEmail(ctx, payload.Email)
+		user, _ := us.User.GetUserByEmail(ctx, payload.Email, repository.UserOptions{})
 
 		if user != nil {
 			return nil, errors.FailedEmailExist
@@ -86,7 +89,7 @@ func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (
 	}
 
 	if payload.Username != "" {
-		user, _ := us.User.GetUserByUsername(ctx, payload.Username)
+		user, _ := us.User.GetUserByUsername(ctx, payload.Username, repository.UserOptions{})
 
 		if user != nil {
 			return nil, errors.FailedUsernameExist
@@ -101,13 +104,14 @@ func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (
 	}
 
 	userPayload := repository.User{
-		ID:        ID,
-		Username:  payload.Username,
-		Email:     payload.Email,
-		Password:  string(password),
-		IsActive:  false,
-		IsDeleted: false,
-		IsAdmin:   payload.IsAdmin,
+		ID:          ID,
+		Username:    payload.Username,
+		Email:       payload.Email,
+		Password:    string(password),
+		IsActive:    false,
+		IsDeleted:   false,
+		IsAdmin:     payload.IsAdmin,
+		CreatedFrom: "UserAPI",
 	}
 	user, err := us.User.CreateUser(ctx, &userPayload)
 	if err != nil {
@@ -119,7 +123,7 @@ func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (
 
 func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *UpdateUserRequest) (*repository.User, error) {
 	if payload.Email != "" {
-		user, _ := us.User.GetUserByEmail(ctx, payload.Email)
+		user, _ := us.User.GetUserByEmail(ctx, payload.Email, repository.UserOptions{})
 
 		if user != nil && userID != user.ID {
 			return nil, errors.FailedEmailExist
@@ -127,7 +131,7 @@ func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *Up
 	}
 
 	if payload.Username != "" {
-		user, _ := us.User.GetUserByUsername(ctx, payload.Username)
+		user, _ := us.User.GetUserByUsername(ctx, payload.Username, repository.UserOptions{})
 
 		if user != nil && userID != user.ID {
 			return nil, errors.FailedUsernameExist

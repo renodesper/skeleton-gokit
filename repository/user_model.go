@@ -18,9 +18,17 @@ type (
 		IsAdmin      bool      `db:"isAdmin" json:"isAdmin"`
 		AccessToken  string    `db:"accessToken" json:"accessToken"`
 		RefreshToken string    `db:"refreshToken" json:"refreshToken"`
+		CreatedFrom  string    `db:"createdFrom" json:"createdFrom"`
 		ExpiredAt    time.Time `db:"expiredAt" json:"expiredAt"`
 		CreatedAt    time.Time `db:"createdAt" json:"createdAt"`
 		UpdatedAt    time.Time `db:"updatedAt" json:"updatedAt"`
+	}
+
+	UserOptions struct {
+		IsActive    *bool
+		IsDeleted   *bool
+		IsAdmin     *bool
+		CreatedFrom *string
 	}
 )
 
