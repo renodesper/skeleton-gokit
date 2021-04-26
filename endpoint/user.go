@@ -2,8 +2,10 @@ package endpoint
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/google/uuid"
 	"gitlab.com/renodesper/gokit-microservices/service"
 )
 
@@ -23,7 +25,39 @@ type (
 	}
 
 	GetUserRequest struct {
-		ID string
+		ID uuid.UUID
+	}
+
+	UpdateUserRequest struct {
+		ID       uuid.UUID
+		Username string
+		Email    string
+		Password string
+	}
+
+	DeleteUserRequest struct {
+		ID uuid.UUID
+	}
+
+	SetAccessTokenRequest struct {
+		ID           uuid.UUID
+		AccessToken  string
+		RefreshToken string
+	}
+
+	SetUserStatusRequest struct {
+		ID       uuid.UUID
+		IsActive bool
+	}
+
+	SetUserRoleRequest struct {
+		ID      uuid.UUID
+		IsAdmin bool
+	}
+
+	SetUserExpiryRequest struct {
+		ID        uuid.UUID
+		ExpiredAt time.Time
 	}
 )
 
@@ -81,5 +115,89 @@ func MakeGetUserEndpoint(svc service.UserService) endpoint.Endpoint {
 		}
 
 		return users, nil
+	}
+}
+
+func MakeUpdateUserEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(UpdateUserRequest)
+
+		userPayload := service.UpdateUserRequest{
+			Username: req.Username,
+			Email:    req.Email,
+			Password: req.Password,
+		}
+
+		user, err := svc.UpdateUser(ctx, req.ID, &userPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeSetAccessTokenEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(SetAccessTokenRequest)
+
+		user, err := svc.SetAccessToken(ctx, req.ID, req.AccessToken, req.RefreshToken)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeSetUserStatusEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(SetUserStatusRequest)
+
+		user, err := svc.SetUserStatus(ctx, req.ID, req.IsActive)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeSetUserRoleEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(SetUserRoleRequest)
+
+		user, err := svc.SetUserRole(ctx, req.ID, req.IsAdmin)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeSetUserExpiryEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(SetUserExpiryRequest)
+
+		user, err := svc.SetUserExpiry(ctx, req.ID, req.ExpiredAt)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeDeleteUserEndpoint(svc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(DeleteUserRequest)
+
+		user, err := svc.DeleteUser(ctx, req.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
 	}
 }
