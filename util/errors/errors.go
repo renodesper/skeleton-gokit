@@ -22,3 +22,14 @@ var (
 	// InvalidCursor returned when the cursor for pagination is invalid
 	InvalidCursor = error.NewError(http.StatusNotFound, "ER9901", fmt.Errorf("Cursor is invalid"))
 )
+
+var (
+	// InvalidRequest returned when ...
+	InvalidRequest = error.NewError(http.StatusBadRequest, "AU1001", fmt.Errorf("Request is not valid"))
+
+	// UnparsableJSON returned when ...
+	UnparsableJSON = error.NewError(http.StatusBadRequest, "AU1002", fmt.Errorf("Failed on parsing JSON"))
+
+	// UnreadableResponse returned when ...
+	UnreadableResponse = error.NewError(http.StatusBadRequest, "AU1003", fmt.Errorf("Failed to read response"))
+)

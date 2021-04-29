@@ -45,8 +45,6 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
-	r.NotFound(http.HandlerFunc(notFound))
-
 	// NOTE: Empty middlewares for the sake of example
 	middlewares := m.Middlewares{
 		Before: []kitendpoint.Middleware{
@@ -55,85 +53,43 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		After: []kitendpoint.Middleware{},
 	}
 
+	r.NotFound(http.HandlerFunc(notFound))
+
+	r.Get("/auth/google", httptransport.NewServer(endpoints.GetLoginAuthEndpoint, decodeNothing, encodeLoginAuthResponse, serverOpts...))
+
+	r.Get("/auth/google/callback", httptransport.NewServer(endpoints.GetCallbackAuthEndpoint, decodeCallbackAuthRequest, encodeResponse, serverOpts...))
+
+	// r.Get("/logout/google", httptransport.NewServer( GetLogoutAuthEndpoint, decodeNothing, encodeResponse, serverOpts...))
+
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
-	r.Get("/health", httptransport.NewServer(
-		GetHealthCheckEndpoint,
-		decodeNothing,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))
 
 	CreateUserEndpoint := m.Chain(middlewares)(endpoints.CreateUserEndpoint)
-	r.Post("/users", httptransport.NewServer(
-		CreateUserEndpoint,
-		decodeCreateUserRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Post("/users", httptransport.NewServer(CreateUserEndpoint, decodeCreateUserRequest, encodeResponse, serverOpts...))
 
 	GetAllUsersEndpoint := m.Chain(middlewares)(endpoints.GetAllUsersEndpoint)
-	r.Get("/users", httptransport.NewServer(
-		GetAllUsersEndpoint,
-		decodeGetAllUsersRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Get("/users", httptransport.NewServer(GetAllUsersEndpoint, decodeGetAllUsersRequest, encodeResponse, serverOpts...))
 
 	GetUserEndpoint := m.Chain(middlewares)(endpoints.GetUserEndpoint)
-	r.Get("/users/:id", httptransport.NewServer(
-		GetUserEndpoint,
-		decodeGetUserRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Get("/users/:id", httptransport.NewServer(GetUserEndpoint, decodeGetUserRequest, encodeResponse, serverOpts...))
 
 	UpdateUserEndpoint := m.Chain(middlewares)(endpoints.UpdateUserEndpoint)
-	r.Put("/users/:id", httptransport.NewServer(
-		UpdateUserEndpoint,
-		decodeUpdateUserRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Put("/users/:id", httptransport.NewServer(UpdateUserEndpoint, decodeUpdateUserRequest, encodeResponse, serverOpts...))
 
 	SetAccessTokenEndpoint := m.Chain(middlewares)(endpoints.SetAccessTokenEndpoint)
-	r.Put("/users/:id/accessToken", httptransport.NewServer(
-		SetAccessTokenEndpoint,
-		decodeSetAccessTokenRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Put("/users/:id/accessToken", httptransport.NewServer(SetAccessTokenEndpoint, decodeSetAccessTokenRequest, encodeResponse, serverOpts...))
 
 	SetUserStatusEndpoint := m.Chain(middlewares)(endpoints.SetUserStatusEndpoint)
-	r.Put("/users/:id/status", httptransport.NewServer(
-		SetUserStatusEndpoint,
-		decodeSetUserStatusRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Put("/users/:id/status", httptransport.NewServer(SetUserStatusEndpoint, decodeSetUserStatusRequest, encodeResponse, serverOpts...))
 
 	SetUserRoleEndpoint := m.Chain(middlewares)(endpoints.SetUserRoleEndpoint)
-	r.Put("/users/:id/role", httptransport.NewServer(
-		SetUserRoleEndpoint,
-		decodeSetUserRoleRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Put("/users/:id/role", httptransport.NewServer(SetUserRoleEndpoint, decodeSetUserRoleRequest, encodeResponse, serverOpts...))
 
 	SetUserExpiryEndpoint := m.Chain(middlewares)(endpoints.SetUserExpiryEndpoint)
-	r.Put("/users/:id/expiry", httptransport.NewServer(
-		SetUserExpiryEndpoint,
-		decodeUpdateUserRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Put("/users/:id/expiry", httptransport.NewServer(SetUserExpiryEndpoint, decodeUpdateUserRequest, encodeResponse, serverOpts...))
 
 	DeleteUserEndpoint := m.Chain(middlewares)(endpoints.DeleteUserEndpoint)
-	r.Delete("/users/:id", httptransport.NewServer(
-		DeleteUserEndpoint,
-		decodeDeleteUserRequest,
-		encodeResponse,
-		serverOpts...,
-	))
+	r.Delete("/users/:id", httptransport.NewServer(DeleteUserEndpoint, decodeDeleteUserRequest, encodeResponse, serverOpts...))
 
 	return r
 }

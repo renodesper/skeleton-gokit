@@ -3,6 +3,7 @@ module gitlab.com/renodesper/gokit-microservices
 go 1.16
 
 require (
+	cloud.google.com/go v0.67.0 // indirect
 	github.com/go-errors/errors v1.1.1
 	github.com/go-kit/kit v0.10.0
 	github.com/go-pg/pg/v10 v10.9.1
@@ -21,5 +22,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/oauth2 v0.0.0-20210413134643-5e61552d6c78
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

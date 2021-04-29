@@ -39,8 +39,10 @@ func main() {
 		return
 	}
 
+	scheme := viper.GetString("app.scheme")
+
 	log.Infof("Enviroment: %s", env)
-	log.Infof("HTTP url: http://%s:%d", *host, *port)
+	log.Infof("HTTP url: %s://%s:%d", scheme, *host, *port)
 	log.Infof("Log level: %s", level)
 
 	dbUsername := viper.GetString("db.username")
@@ -52,9 +54,10 @@ func main() {
 	defer db.Close()
 
 	healthSvc := service.NewHealthService()
-	userSvc := service.NewUserService(db)
+	authSvc := service.NewGoogleOauthService(log, db)
+	userSvc := service.NewUserService(log, db)
 
-	endpoint := api.New(healthSvc, userSvc, env)
+	endpoint := api.New(healthSvc, authSvc, userSvc, env)
 	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -81,20 +84,22 @@ func main() {
 }
 
 func initConfig() {
-	port = flag.Int("port", 8000, "port")
 	host = flag.String("host", "0.0.0.0", "host")
+	port = flag.Int("port", 8000, "port")
+
 	configFile := flag.String("config", "config/env/development.toml", "configuration path")
 	flag.Parse()
 
 	viper.SetConfigFile(*configFile)
-	viper.BindEnv("app.env", "ENV")
-	viper.BindEnv("log.level", "LOG_LEVEL")
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
 
+	if h := viper.GetString("app.host"); h != "" {
+		host = &h
+	}
 	if p := viper.GetInt("app.port"); p != 0 {
 		port = &p
 	}
