@@ -65,7 +65,8 @@ func (g *GoogleOauthSvc) OauthCallback(ctx context.Context, code string) (*Token
 		username := s[0]
 
 		// NOTE: Temporary password
-		password, err := bcrypt.GenerateFromPassword([]byte(ID.String()), bcrypt.DefaultCost)
+		tmpPassword := uuid.New().String()
+		password, err := bcrypt.GenerateFromPassword([]byte(tmpPassword), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, err
 		}
@@ -80,21 +81,26 @@ func (g *GoogleOauthSvc) OauthCallback(ctx context.Context, code string) (*Token
 			IsAdmin:     false,
 			CreatedFrom: "GoogleOauth",
 		}
-		_, err = g.User.CreateUser(ctx, &userPayload)
+		user, err = g.User.CreateUser(ctx, &userPayload)
 		if err != nil {
-			// TODO: Need a better handling
-			g.Log.Error(err)
+			return nil, err
 		}
-
-		return nil, errors.FailedUserNotFound
 	}
 
-	// TODO: Generate new access token
-	token := Token{
-		AccessToken:  user.AccessToken,
-		RefreshToken: user.RefreshToken,
+	token, err := authUtil.Token(user.ID)
+	if err != nil {
+		return nil, err
 	}
-	return &token, nil
+
+	_, err = g.User.SetAccessToken(ctx, user.ID, token.AccessToken, token.RefreshToken, token.Expiry)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Token{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}, nil
 }
 
 func (g *GoogleOauthSvc) GetUserData(ctx context.Context, code string) (*GoogleUser, error) {

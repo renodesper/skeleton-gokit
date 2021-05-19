@@ -15,6 +15,9 @@ name = "project"
 [log]
 level = "debug"
 
+[jwt]
+secret_key = "7810650D-DB2F-4B28-8536-745F21081BF5"
+
 [google]
 client_id = "931375941509-4bvpoo37t11r8g2ivif564p867t44927.apps.googleusercontent.com"
 client_secret = "ZKVuAm0ejYqZ1l03WzCXlHT_"

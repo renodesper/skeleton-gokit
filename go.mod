@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	cloud.google.com/go v0.67.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-errors/errors v1.1.1
 	github.com/go-kit/kit v0.10.0
 	github.com/go-pg/pg/v10 v10.9.1

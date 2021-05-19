@@ -20,7 +20,7 @@ type (
 		GetUser(ctx context.Context, userID uuid.UUID) (*repository.User, error)
 		CreateUser(ctx context.Context, payload *CreateUserRequest) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, payload *UpdateUserRequest) (*repository.User, error)
-		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error)
+		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error)
 		SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error)
 		SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error)
 		SetUserExpiry(ctx context.Context, userID uuid.UUID, expiredAt time.Time) (*repository.User, error)
@@ -165,8 +165,8 @@ func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *Up
 	return user, nil
 }
 
-func (us *UserSvc) SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error) {
-	user, err := us.User.SetAccessToken(ctx, userID, accessToken, refreshToken)
+func (us *UserSvc) SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error) {
+	user, err := us.User.SetAccessToken(ctx, userID, accessToken, refreshToken, expiredAt)
 	if err != nil {
 		return nil, err
 	}

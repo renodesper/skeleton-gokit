@@ -21,7 +21,7 @@ type (
 		GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error)
 		CreateUser(ctx context.Context, userPayload *repository.User) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error)
-		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error)
+		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error)
 		SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error)
 		SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error)
 		SetUserExpiry(ctx context.Context, userID uuid.UUID, expiredAt time.Time) (*repository.User, error)
@@ -193,6 +193,8 @@ func (ur *UserRepo) CreateUser(ctx context.Context, userPayload *repository.User
 }
 
 func (ur *UserRepo) UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error) {
+	userPayload["updated_at"] = time.Now()
+
 	var user repository.User
 	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
@@ -202,10 +204,12 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, userID uuid.UUID, userPayloa
 	return &user, nil
 }
 
-func (ur *UserRepo) SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string) (*repository.User, error) {
+func (ur *UserRepo) SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error) {
 	userPayload := map[string]interface{}{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
+		"expired_at":    expiredAt,
+		"updated_at":    time.Now(),
 	}
 
 	var user repository.User
@@ -219,7 +223,8 @@ func (ur *UserRepo) SetAccessToken(ctx context.Context, userID uuid.UUID, access
 
 func (ur *UserRepo) SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error) {
 	userPayload := map[string]interface{}{
-		"is_active": isActive,
+		"is_active":  isActive,
+		"updated_at": time.Now(),
 	}
 
 	var user repository.User
@@ -233,7 +238,8 @@ func (ur *UserRepo) SetUserStatus(ctx context.Context, userID uuid.UUID, isActiv
 
 func (ur *UserRepo) SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error) {
 	userPayload := map[string]interface{}{
-		"is_admin": isAdmin,
+		"is_admin":   isAdmin,
+		"updated_at": time.Now(),
 	}
 
 	var user repository.User
@@ -248,6 +254,7 @@ func (ur *UserRepo) SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin b
 func (ur *UserRepo) SetUserExpiry(ctx context.Context, userID uuid.UUID, expiredAt time.Time) (*repository.User, error) {
 	userPayload := map[string]interface{}{
 		"expired_at": expiredAt,
+		"updated_at": time.Now(),
 	}
 
 	var user repository.User
@@ -262,6 +269,7 @@ func (ur *UserRepo) SetUserExpiry(ctx context.Context, userID uuid.UUID, expired
 func (ur *UserRepo) DeleteUser(ctx context.Context, userID uuid.UUID) (*repository.User, error) {
 	userPayload := map[string]interface{}{
 		"is_deleted": true,
+		"updated_at": time.Now(),
 	}
 
 	var user repository.User

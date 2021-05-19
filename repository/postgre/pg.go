@@ -16,5 +16,10 @@ func NewPostgreClient(username, password, host string, port int, dbName string) 
 		Database: dbName,
 	})
 
+	_, err := db.Exec("SELECT 1")
+	if err != nil {
+		panic(err)
+	}
+
 	return db
 }

@@ -43,6 +43,7 @@ type (
 		ID           uuid.UUID
 		AccessToken  string
 		RefreshToken string
+		ExpiredAt    time.Time
 	}
 
 	SetUserStatusRequest struct {
@@ -140,7 +141,7 @@ func MakeSetAccessTokenEndpoint(svc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(SetAccessTokenRequest)
 
-		user, err := svc.SetAccessToken(ctx, req.ID, req.AccessToken, req.RefreshToken)
+		user, err := svc.SetAccessToken(ctx, req.ID, req.AccessToken, req.RefreshToken, req.ExpiredAt)
 		if err != nil {
 			return nil, err
 		}

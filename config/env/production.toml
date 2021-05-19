@@ -15,6 +15,9 @@ name = "project"
 [log]
 level = "info"
 
+[jwt]
+secret_key = "D56D60EC-75C7-4A1F-A1FA-5D7350DB8CFC"
+
 [google]
 client_id = "931375941509-4bvpoo37t11r8g2ivif564p867t44927.apps.googleusercontent.com"
 client_secret = "ZKVuAm0ejYqZ1l03WzCXlHT_"
