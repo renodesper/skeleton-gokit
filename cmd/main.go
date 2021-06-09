@@ -54,10 +54,11 @@ func main() {
 	defer db.Close()
 
 	healthSvc := service.NewHealthService()
-	authSvc := service.NewGoogleOauthService(log, db)
+	googleAuthSvc := service.NewGoogleOauthService(log, db)
+	authSvc := service.NewOauthService(log, db)
 	userSvc := service.NewUserService(log, db)
 
-	endpoint := api.New(healthSvc, authSvc, userSvc, env)
+	endpoint := api.New(healthSvc, googleAuthSvc, authSvc, userSvc, env)
 	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

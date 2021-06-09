@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	ctxutil "gitlab.com/renodesper/gokit-microservices/util/ctx"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
+	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
 	"golang.org/x/oauth2"
 )
@@ -54,4 +56,20 @@ func googleGenerateOauthStateCookie(w http.ResponseWriter) string {
 	http.SetCookie(w, &cookie)
 
 	return state
+}
+
+func decodeLogoutAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.LogoutAuthRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	return req, nil
 }

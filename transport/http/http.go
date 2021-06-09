@@ -59,7 +59,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	r.Get("/auth/google/callback", httptransport.NewServer(endpoints.GetCallbackAuthEndpoint, decodeCallbackAuthRequest, encodeResponse, serverOpts...))
 
-	// r.Get("/logout/google", httptransport.NewServer( GetLogoutAuthEndpoint, decodeNothing, encodeResponse, serverOpts...))
+	r.Post("/logout", httptransport.NewServer(endpoints.GetLogoutAuthEndpoint, decodeLogoutAuthRequest, encodeResponse, serverOpts...))
 
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))

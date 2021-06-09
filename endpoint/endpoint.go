@@ -22,11 +22,17 @@ type Set struct {
 }
 
 // New ...
-func New(healthSvc service.HealthService, googleOauthSvc service.GoogleOauthService, userSvc service.UserService, env string) Set {
+func New(
+	healthSvc service.HealthService,
+	googleOauthSvc service.GoogleOauthService,
+	oauthSvc service.OauthService,
+	userSvc service.UserService,
+	env string,
+) Set {
 	return Set{
 		GetLoginAuthEndpoint:    MakeLoginAuthEndpoint(googleOauthSvc),
 		GetCallbackAuthEndpoint: MakeCallbackAuthEndpoint(googleOauthSvc),
-		GetLogoutAuthEndpoint:   MakeLogoutAuthEndpoint(googleOauthSvc),
+		GetLogoutAuthEndpoint:   MakeLogoutAuthEndpoint(oauthSvc),
 		GetHealthCheckEndpoint:  MakeHealthCheckEndpoint(healthSvc),
 		CreateUserEndpoint:      MakeCreateUserEndpoint(userSvc),
 		GetAllUsersEndpoint:     MakeGetAllUsersEndpoint(userSvc),
