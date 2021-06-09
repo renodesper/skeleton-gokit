@@ -9,10 +9,12 @@ GOCMD=go
 GOTEST=$(GOCMD) test
 GOVET=$(GOCMD) vet
 
-GREEN  := $(shell tput -Txterm setaf 2)
-YELLOW := $(shell tput -Txterm setaf 3)
-WHITE  := $(shell tput -Txterm setaf 7)
-RESET  := $(shell tput -Txterm sgr0)
+GOPATH  := $(shell $(GOCMD) env GOPATH)
+AIRPATH := $(GOPATH)/bin/air
+GREEN   := $(shell tput -Txterm setaf 2)
+YELLOW  := $(shell tput -Txterm setaf 3)
+WHITE   := $(shell tput -Txterm setaf 7)
+RESET   := $(shell tput -Txterm sgr0)
 
 .PHONY: all test build vendor
 
@@ -80,7 +82,8 @@ docker-release:
 	docker push $(DOCKER_REGISTRY)$(BINARY_NAME):$(VERSION)
 
 watch:
-	@echo '"${YELLOW}watch${RESET}" target is not implemented yet'
+	test -s ${AIRPATH} || curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(GOPATH)/bin
+	${AIRPATH}
 
 help:
 	@echo ''

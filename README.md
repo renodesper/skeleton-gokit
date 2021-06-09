@@ -56,14 +56,20 @@ Solution:
 
 ## Run the app
 
+Use Makefile with hot reload enabled:
+
+    ```sh
+    make watch
+    ```
+
+Use Makefile with hot reload disabled:
+
+    ```sh
+    make run
+    ```
+
 Run the main go file:
 
     ```sh
     go run cmd/main.go
-    ```
-
-Use Makefile:
-
-    ```sh
-    make run
     ```
