@@ -55,11 +55,13 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	r.NotFound(http.HandlerFunc(notFound))
 
-	r.Get("/auth/google", httptransport.NewServer(endpoints.GetLoginAuthEndpoint, decodeNothing, encodeLoginAuthResponse, serverOpts...))
+	r.Get("/auth/google", httptransport.NewServer(endpoints.GoogleLoginAuthEndpoint, decodeNothing, encodeGoogleLoginAuthResponse, serverOpts...))
 
-	r.Get("/auth/google/callback", httptransport.NewServer(endpoints.GetCallbackAuthEndpoint, decodeCallbackAuthRequest, encodeResponse, serverOpts...))
+	r.Get("/auth/google/callback", httptransport.NewServer(endpoints.GoogleCallbackAuthEndpoint, decodeGoogleCallbackAuthRequest, encodeResponse, serverOpts...))
 
-	r.Post("/logout", httptransport.NewServer(endpoints.GetLogoutAuthEndpoint, decodeLogoutAuthRequest, encodeResponse, serverOpts...))
+	r.Post("/login", httptransport.NewServer(endpoints.LoginAuthEndpoint, decodeLoginAuthRequest, encodeResponse, serverOpts...))
+
+	r.Post("/logout", httptransport.NewServer(endpoints.LogoutAuthEndpoint, decodeLogoutAuthRequest, encodeResponse, serverOpts...))
 
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))

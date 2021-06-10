@@ -6,19 +6,20 @@ import (
 )
 
 type Set struct {
-	GetLoginAuthEndpoint    endpoint.Endpoint
-	GetCallbackAuthEndpoint endpoint.Endpoint
-	GetLogoutAuthEndpoint   endpoint.Endpoint
-	GetHealthCheckEndpoint  endpoint.Endpoint
-	CreateUserEndpoint      endpoint.Endpoint
-	GetAllUsersEndpoint     endpoint.Endpoint
-	GetUserEndpoint         endpoint.Endpoint
-	UpdateUserEndpoint      endpoint.Endpoint
-	DeleteUserEndpoint      endpoint.Endpoint
-	SetAccessTokenEndpoint  endpoint.Endpoint
-	SetUserStatusEndpoint   endpoint.Endpoint
-	SetUserRoleEndpoint     endpoint.Endpoint
-	SetUserExpiryEndpoint   endpoint.Endpoint
+	GoogleLoginAuthEndpoint    endpoint.Endpoint
+	GoogleCallbackAuthEndpoint endpoint.Endpoint
+	LoginAuthEndpoint          endpoint.Endpoint
+	LogoutAuthEndpoint         endpoint.Endpoint
+	GetHealthCheckEndpoint     endpoint.Endpoint
+	CreateUserEndpoint         endpoint.Endpoint
+	GetAllUsersEndpoint        endpoint.Endpoint
+	GetUserEndpoint            endpoint.Endpoint
+	UpdateUserEndpoint         endpoint.Endpoint
+	DeleteUserEndpoint         endpoint.Endpoint
+	SetAccessTokenEndpoint     endpoint.Endpoint
+	SetUserStatusEndpoint      endpoint.Endpoint
+	SetUserRoleEndpoint        endpoint.Endpoint
+	SetUserExpiryEndpoint      endpoint.Endpoint
 }
 
 // New ...
@@ -30,18 +31,19 @@ func New(
 	env string,
 ) Set {
 	return Set{
-		GetLoginAuthEndpoint:    MakeLoginAuthEndpoint(googleOauthSvc),
-		GetCallbackAuthEndpoint: MakeCallbackAuthEndpoint(googleOauthSvc),
-		GetLogoutAuthEndpoint:   MakeLogoutAuthEndpoint(oauthSvc),
-		GetHealthCheckEndpoint:  MakeHealthCheckEndpoint(healthSvc),
-		CreateUserEndpoint:      MakeCreateUserEndpoint(userSvc),
-		GetAllUsersEndpoint:     MakeGetAllUsersEndpoint(userSvc),
-		GetUserEndpoint:         MakeGetUserEndpoint(userSvc),
-		UpdateUserEndpoint:      MakeUpdateUserEndpoint(userSvc),
-		SetAccessTokenEndpoint:  MakeSetAccessTokenEndpoint(userSvc),
-		SetUserStatusEndpoint:   MakeSetUserStatusEndpoint(userSvc),
-		SetUserRoleEndpoint:     MakeSetUserRoleEndpoint(userSvc),
-		SetUserExpiryEndpoint:   MakeSetUserExpiryEndpoint(userSvc),
-		DeleteUserEndpoint:      MakeDeleteUserEndpoint(userSvc),
+		GoogleLoginAuthEndpoint:    MakeGoogleLoginAuthEndpoint(googleOauthSvc),
+		GoogleCallbackAuthEndpoint: MakeGoogleCallbackAuthEndpoint(googleOauthSvc),
+		LoginAuthEndpoint:          MakeLoginAuthEndpoint(oauthSvc),
+		LogoutAuthEndpoint:         MakeLogoutAuthEndpoint(oauthSvc),
+		GetHealthCheckEndpoint:     MakeHealthCheckEndpoint(healthSvc),
+		CreateUserEndpoint:         MakeCreateUserEndpoint(userSvc),
+		GetAllUsersEndpoint:        MakeGetAllUsersEndpoint(userSvc),
+		GetUserEndpoint:            MakeGetUserEndpoint(userSvc),
+		UpdateUserEndpoint:         MakeUpdateUserEndpoint(userSvc),
+		SetAccessTokenEndpoint:     MakeSetAccessTokenEndpoint(userSvc),
+		SetUserStatusEndpoint:      MakeSetUserStatusEndpoint(userSvc),
+		SetUserRoleEndpoint:        MakeSetUserRoleEndpoint(userSvc),
+		SetUserExpiryEndpoint:      MakeSetUserExpiryEndpoint(userSvc),
+		DeleteUserEndpoint:         MakeDeleteUserEndpoint(userSvc),
 	}
 }

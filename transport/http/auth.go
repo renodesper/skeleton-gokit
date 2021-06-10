@@ -16,7 +16,20 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func decodeCallbackAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func encodeGoogleLoginAuthResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	requestID := ctxutil.GetRequestID(ctx)
+
+	config := response.(*oauth2.Config)
+	oauthState := googleGenerateOauthStateCookie(w)
+	url := config.AuthCodeURL(oauthState)
+
+	return json.NewEncoder(w).Encode(&resp.SuccessResponse{
+		Data: url,
+		Meta: resp.PopulateMeta(requestID),
+	})
+}
+
+func decodeGoogleCallbackAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	oauthState, _ := r.Cookie("oauthState")
 
 	state := r.FormValue("state")
@@ -32,19 +45,6 @@ func decodeCallbackAuthRequest(_ context.Context, r *http.Request) (interface{},
 	return req, nil
 }
 
-func encodeLoginAuthResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	requestID := ctxutil.GetRequestID(ctx)
-
-	config := response.(*oauth2.Config)
-	oauthState := googleGenerateOauthStateCookie(w)
-	url := config.AuthCodeURL(oauthState)
-
-	return json.NewEncoder(w).Encode(&resp.SuccessResponse{
-		Data: url,
-		Meta: resp.PopulateMeta(requestID),
-	})
-}
-
 func googleGenerateOauthStateCookie(w http.ResponseWriter) string {
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 
@@ -56,6 +56,22 @@ func googleGenerateOauthStateCookie(w http.ResponseWriter) string {
 	http.SetCookie(w, &cookie)
 
 	return state
+}
+
+func decodeLoginAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.LoginAuthRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	return req, nil
 }
 
 func decodeLogoutAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {

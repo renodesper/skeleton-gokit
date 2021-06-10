@@ -14,28 +14,46 @@ type (
 		Code string `json:"code" validate:"required"`
 	}
 
+	LoginAuthRequest struct {
+		Email    string `json:"email" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+
 	LogoutAuthRequest struct {
 		UserID string `json:"userId" validate:"required"`
 	}
 )
 
-func MakeLoginAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
+func MakeGoogleLoginAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		config := authUtil.GetGoogleOauthConfig()
 		return config, nil
 	}
 }
 
-func MakeCallbackAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
+func MakeGoogleCallbackAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CallbackAuthRequest)
 
-		userData, err := googleOauthSvc.OauthCallback(ctx, req.Code)
+		token, err := googleOauthSvc.OauthCallback(ctx, req.Code)
 		if err != nil {
 			return nil, err
 		}
 
-		return userData, nil
+		return token, nil
+	}
+}
+
+func MakeLoginAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(LoginAuthRequest)
+
+		token, err := oauthSvc.Login(ctx, req.Email, req.Password)
+		if err != nil {
+			return nil, err
+		}
+
+		return token, nil
 	}
 }
 

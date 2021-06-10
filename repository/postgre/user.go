@@ -19,6 +19,7 @@ type (
 		GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error)
 		GetUserByEmail(ctx context.Context, email string, opts repository.UserOptions) (*repository.User, error)
 		GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error)
+		GetUserByEmailPassword(ctx context.Context, email string, password string, opts repository.UserOptions) (*repository.User, error)
 		CreateUser(ctx context.Context, userPayload *repository.User) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error)
 		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error)
@@ -159,6 +160,32 @@ func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string, opts
 	user := repository.User{}
 
 	sql := ur.Db.Model(&user).Where("username = ?", username)
+	if opts.IsActive != nil {
+		sql.Where("is_active = ?", *opts.IsActive)
+	}
+	if opts.IsDeleted != nil {
+		sql.Where("is_deleted = ?", *opts.IsDeleted)
+	}
+	if opts.IsAdmin != nil {
+		sql.Where("is_admin = ?", *opts.IsAdmin)
+	}
+	if opts.CreatedFrom != nil {
+		sql.Where("created_from = ?", *opts.CreatedFrom)
+	}
+
+	err := sql.Select()
+	if err != nil {
+		return nil, errors.FailedUserFetch.AppendError(err)
+	}
+
+	return &user, nil
+}
+
+// GetUserByEmailPassword ...
+func (ur *UserRepo) GetUserByEmailPassword(ctx context.Context, email string, password string, opts repository.UserOptions) (*repository.User, error) {
+	user := repository.User{}
+
+	sql := ur.Db.Model(&user).Where("email = ?", email).Where("password = ?", password)
 	if opts.IsActive != nil {
 		sql.Where("is_active = ?", *opts.IsActive)
 	}

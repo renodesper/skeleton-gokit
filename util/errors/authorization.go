@@ -10,6 +10,9 @@ import (
 var (
 	// InvalidSessionToken returned when session token is invalid
 	InvalidSessionToken = error.NewError(http.StatusUnauthorized, "AU2001", fmt.Errorf("Session token is invalid"))
+
+	// InvalidLoginCredential returned when login credential (email or password) is invalid
+	InvalidLoginCredential = error.NewError(http.StatusBadRequest, "AU3004", fmt.Errorf("Invalid login credential"))
 )
 
 var (
