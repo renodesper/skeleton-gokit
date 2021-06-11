@@ -13,7 +13,6 @@ import (
 	authUtil "gitlab.com/renodesper/gokit-microservices/util/auth"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type (
@@ -23,8 +22,9 @@ type (
 	}
 
 	GoogleOauthSvc struct {
-		Log  logger.Logger
-		User postgre.UserRepository
+		Log      logger.Logger
+		User     postgre.UserRepository
+		OauthSvc *OauthSvc
 	}
 
 	GoogleUser struct {
@@ -45,9 +45,12 @@ const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_
 // NewGoogleAuthService creates auth google service
 func NewGoogleOauthService(log logger.Logger, db *pg.DB) GoogleOauthService {
 	userRepo := postgre.CreateUserRepository(db)
+	oauthSvc := OauthSvc{Log: log, User: userRepo}
+
 	return &GoogleOauthSvc{
-		Log:  log,
-		User: userRepo,
+		Log:      log,
+		User:     userRepo,
+		OauthSvc: &oauthSvc,
 	}
 }
 
@@ -59,32 +62,17 @@ func (g *GoogleOauthSvc) OauthCallback(ctx context.Context, code string) (*Token
 
 	user, _ := g.User.GetUserByEmail(ctx, googleUser.Email, repository.UserOptions{})
 	if user == nil {
-		ID := uuid.New()
-
 		s := strings.Split(googleUser.Email, "@")
 		username := s[0]
 
-		// NOTE: Temporary password
-		tmpPassword := uuid.New().String()
-		password, err := bcrypt.GenerateFromPassword([]byte(tmpPassword), bcrypt.DefaultCost)
+		password := uuid.New().String()
+
+		token, err := g.OauthSvc.Register(ctx, username, googleUser.Email, password, false, false, false, "GoogleOauth")
 		if err != nil {
 			return nil, err
 		}
 
-		userPayload := repository.User{
-			ID:          ID,
-			Username:    username,
-			Email:       googleUser.Email,
-			Password:    string(password),
-			IsActive:    false,
-			IsDeleted:   false,
-			IsAdmin:     false,
-			CreatedFrom: "GoogleOauth",
-		}
-		user, err = g.User.CreateUser(ctx, &userPayload)
-		if err != nil {
-			return nil, err
-		}
+		return token, nil
 	}
 
 	token, err := authUtil.Token(user.ID)

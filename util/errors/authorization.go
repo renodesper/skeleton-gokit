@@ -8,20 +8,12 @@ import (
 )
 
 var (
-	// InvalidSessionToken returned when session token is invalid
-	InvalidSessionToken = error.NewError(http.StatusUnauthorized, "AU2001", fmt.Errorf("Session token is invalid"))
-
-	// InvalidLoginCredential returned when login credential (email or password) is invalid
-	InvalidLoginCredential = error.NewError(http.StatusBadRequest, "AU3004", fmt.Errorf("Invalid login credential"))
+	InvalidSessionToken    = error.NewError(http.StatusUnauthorized, "AU2001", fmt.Errorf("session token is invalid"))
+	InvalidLoginCredential = error.NewError(http.StatusBadRequest, "AU3004", fmt.Errorf("invalid login credential"))
 )
 
 var (
-	// InvalidGoogleOauthState returned when Google oauthState is invalid
-	InvalidGoogleOauthState = error.NewError(http.StatusBadRequest, "AU3001", fmt.Errorf("Google oauthState is invalid"))
-
-	// InvalidGoogleOauthCodeExchange returned when Google code exchange is invalid
-	InvalidGoogleOauthCodeExchange = error.NewError(http.StatusBadRequest, "AU3002", fmt.Errorf("Google oauth code exchange is invalid"))
-
-	// FailedGoogleUserFetch returned when failed in fetching user data
-	FailedGoogleUserFetch = error.NewError(http.StatusInternalServerError, "AU3003", fmt.Errorf("Unable to fetch user"))
+	InvalidGoogleOauthState        = error.NewError(http.StatusBadRequest, "AU3001", fmt.Errorf("google oauthState is invalid"))
+	InvalidGoogleOauthCodeExchange = error.NewError(http.StatusBadRequest, "AU3002", fmt.Errorf("google oauth code exchange is invalid"))
+	FailedGoogleUserFetch          = error.NewError(http.StatusInternalServerError, "AU3003", fmt.Errorf("unable to fetch user"))
 )

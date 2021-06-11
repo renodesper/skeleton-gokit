@@ -89,3 +89,19 @@ func decodeLogoutAuthRequest(_ context.Context, r *http.Request) (interface{}, e
 
 	return req, nil
 }
+
+func decodeRegisterAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.RegisterAuthRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	return req, nil
+}

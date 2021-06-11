@@ -55,13 +55,20 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	r.NotFound(http.HandlerFunc(notFound))
 
-	r.Get("/auth/google", httptransport.NewServer(endpoints.GoogleLoginAuthEndpoint, decodeNothing, encodeGoogleLoginAuthResponse, serverOpts...))
+	GoogleLoginAuthEndpoint := m.Chain(middlewares)(endpoints.GoogleLoginAuthEndpoint)
+	r.Get("/auth/google", httptransport.NewServer(GoogleLoginAuthEndpoint, decodeNothing, encodeGoogleLoginAuthResponse, serverOpts...))
 
-	r.Get("/auth/google/callback", httptransport.NewServer(endpoints.GoogleCallbackAuthEndpoint, decodeGoogleCallbackAuthRequest, encodeResponse, serverOpts...))
+	GoogleCallbackAuthEndpoint := m.Chain(middlewares)(endpoints.GoogleCallbackAuthEndpoint)
+	r.Get("/auth/google/callback", httptransport.NewServer(GoogleCallbackAuthEndpoint, decodeGoogleCallbackAuthRequest, encodeResponse, serverOpts...))
 
-	r.Post("/login", httptransport.NewServer(endpoints.LoginAuthEndpoint, decodeLoginAuthRequest, encodeResponse, serverOpts...))
+	LoginAuthEndpoint := m.Chain(middlewares)(endpoints.LoginAuthEndpoint)
+	r.Post("/login", httptransport.NewServer(LoginAuthEndpoint, decodeLoginAuthRequest, encodeResponse, serverOpts...))
 
-	r.Post("/logout", httptransport.NewServer(endpoints.LogoutAuthEndpoint, decodeLogoutAuthRequest, encodeResponse, serverOpts...))
+	LogoutAuthEndpoint := m.Chain(middlewares)(endpoints.LogoutAuthEndpoint)
+	r.Post("/logout", httptransport.NewServer(LogoutAuthEndpoint, decodeLogoutAuthRequest, encodeResponse, serverOpts...))
+
+	RegisterAuthEndpoint := m.Chain(middlewares)(endpoints.RegisterAuthEndpoint)
+	r.Post("/register", httptransport.NewServer(RegisterAuthEndpoint, decodeRegisterAuthRequest, encodeResponse, serverOpts...))
 
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))

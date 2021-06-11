@@ -109,12 +109,12 @@ func MakeGetUserEndpoint(svc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetUserRequest)
 
-		users, err := svc.GetUser(ctx, req.ID)
+		user, err := svc.GetUser(ctx, req.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		return users, nil
+		return user, nil
 	}
 }
 

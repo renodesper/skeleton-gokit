@@ -123,6 +123,10 @@ func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repo
 
 	err := sql.Select()
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, errors.FailedNoRows.AppendError(err)
+		}
+
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
 
@@ -149,6 +153,10 @@ func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string, opts repos
 
 	err := sql.Select()
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, errors.FailedNoRows.AppendError(err)
+		}
+
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
 
@@ -175,6 +183,10 @@ func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string, opts
 
 	err := sql.Select()
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, errors.FailedNoRows.AppendError(err)
+		}
+
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
 
@@ -201,6 +213,10 @@ func (ur *UserRepo) GetUserByEmailPassword(ctx context.Context, email string, pa
 
 	err := sql.Select()
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, errors.FailedNoRows.AppendError(err)
+		}
+
 		return nil, errors.FailedUserFetch.AppendError(err)
 	}
 

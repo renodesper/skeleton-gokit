@@ -22,6 +22,16 @@ type (
 	LogoutAuthRequest struct {
 		UserID string `json:"userId" validate:"required"`
 	}
+
+	RegisterAuthRequest struct {
+		Username    string `json:"username" validate:"required"`
+		Email       string `json:"email" validate:"required"`
+		Password    string `json:"password" validate:"required"`
+		IsActive    bool   `json:"isActive"`
+		IsDeleted   bool   `json:"isDeleted"`
+		IsAdmin     bool   `json:"isAdmin"`
+		CreatedFrom string `json:"createdFrom"`
+	}
 )
 
 func MakeGoogleLoginAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
@@ -72,5 +82,18 @@ func MakeLogoutAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
 		}
 
 		return "OK", nil
+	}
+}
+
+func MakeRegisterAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(RegisterAuthRequest)
+
+		user, err := oauthSvc.Register(ctx, req.Username, req.Email, req.Password, req.IsActive, req.IsDeleted, req.IsAdmin, req.CreatedFrom)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
 	}
 }

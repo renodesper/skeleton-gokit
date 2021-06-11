@@ -9,6 +9,7 @@ import (
 	"gitlab.com/renodesper/gokit-microservices/repository"
 	"gitlab.com/renodesper/gokit-microservices/repository/postgre"
 	authUtil "gitlab.com/renodesper/gokit-microservices/util/auth"
+	e "gitlab.com/renodesper/gokit-microservices/util/error"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
 	"golang.org/x/crypto/bcrypt"
@@ -16,8 +17,9 @@ import (
 
 type (
 	OauthService interface {
-		Login(ctx context.Context, email, password string) (*Token, error)
+		Login(ctx context.Context, email string, password string) (*Token, error)
 		Logout(ctx context.Context, userID uuid.UUID) error
+		Register(ctx context.Context, username string, email string, passwd string, isActive bool, isDeleted bool, isAdmin bool, createdFrom string) (*Token, error)
 	}
 
 	OauthSvc struct {
@@ -75,4 +77,71 @@ func (o *OauthSvc) Logout(ctx context.Context, userID uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (o *OauthSvc) Register(ctx context.Context, username string, email string, password string, isActive bool, isDeleted bool, isAdmin bool, createdFrom string) (*Token, error) {
+	// NOTE: Check for existing username
+	userByUsername, err := o.User.GetUserByUsername(ctx, username, repository.UserOptions{})
+
+	if err != nil {
+		if wErr, ok := err.(e.Error); ok && wErr.Code != errors.FailedNoRows.Code {
+			return nil, err
+		}
+	}
+	if userByUsername != nil {
+		return nil, errors.FailedUsernameExist
+	}
+
+	// NOTE: Check for existing email
+	userByEmail, _ := o.User.GetUserByEmail(ctx, email, repository.UserOptions{})
+
+	if err != nil {
+		if wErr, ok := err.(e.Error); ok && wErr.Code != errors.FailedNoRows.Code {
+			return nil, err
+		}
+	}
+	if userByEmail != nil {
+		return nil, errors.FailedEmailExist
+	}
+
+	ID := uuid.New()
+
+	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	if createdFrom == "" {
+		createdFrom = "Registration"
+	}
+
+	userPayload := repository.User{
+		ID:          ID,
+		Username:    username,
+		Email:       email,
+		Password:    string(passwd),
+		IsActive:    isActive,
+		IsDeleted:   isDeleted,
+		IsAdmin:     isAdmin,
+		CreatedFrom: createdFrom,
+	}
+	user, err := o.User.CreateUser(ctx, &userPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := authUtil.Token(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = o.User.SetAccessToken(ctx, user.ID, token.AccessToken, token.RefreshToken, token.Expiry)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Token{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}, nil
 }

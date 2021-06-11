@@ -10,6 +10,7 @@ type Set struct {
 	GoogleCallbackAuthEndpoint endpoint.Endpoint
 	LoginAuthEndpoint          endpoint.Endpoint
 	LogoutAuthEndpoint         endpoint.Endpoint
+	RegisterAuthEndpoint       endpoint.Endpoint
 	GetHealthCheckEndpoint     endpoint.Endpoint
 	CreateUserEndpoint         endpoint.Endpoint
 	GetAllUsersEndpoint        endpoint.Endpoint
@@ -35,6 +36,7 @@ func New(
 		GoogleCallbackAuthEndpoint: MakeGoogleCallbackAuthEndpoint(googleOauthSvc),
 		LoginAuthEndpoint:          MakeLoginAuthEndpoint(oauthSvc),
 		LogoutAuthEndpoint:         MakeLogoutAuthEndpoint(oauthSvc),
+		RegisterAuthEndpoint:       MakeRegisterAuthEndpoint(oauthSvc),
 		GetHealthCheckEndpoint:     MakeHealthCheckEndpoint(healthSvc),
 		CreateUserEndpoint:         MakeCreateUserEndpoint(userSvc),
 		GetAllUsersEndpoint:        MakeGetAllUsersEndpoint(userSvc),
