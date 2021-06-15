@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
-	ctxutil "gitlab.com/renodesper/gokit-microservices/util/ctx"
+	ctxUtil "gitlab.com/renodesper/gokit-microservices/util/ctx"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
@@ -17,7 +17,7 @@ import (
 )
 
 func encodeGoogleLoginAuthResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	requestID := ctxutil.GetRequestID(ctx)
+	requestID := ctxUtil.GetRequestID(ctx)
 
 	config := response.(*oauth2.Config)
 	oauthState := googleGenerateOauthStateCookie(w)

@@ -33,14 +33,14 @@ func TestSetRequestID(t *testing.T) {
 	assert.NotEmpty(t, s)
 }
 
-func TestFromHTTPRequest(t *testing.T) {
+func TestExtractRequestID(t *testing.T) {
 	ctx := context.Background()
 	requestID := "qwertyuiop"
 	header := map[string][]string{
 		"X-Request-Id": {requestID},
 	}
 
-	ctx = FromHTTPRequest(ctx, &http.Request{
+	ctx = ExtractRequestID(ctx, &http.Request{
 		Header: header,
 	})
 	s := GetRequestID(ctx)

@@ -12,8 +12,9 @@ import (
 	"github.com/spf13/viper"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	m "gitlab.com/renodesper/gokit-microservices/middleware"
+	"gitlab.com/renodesper/gokit-microservices/middleware/apiKey"
 	"gitlab.com/renodesper/gokit-microservices/middleware/recover"
-	ctxutil "gitlab.com/renodesper/gokit-microservices/util/ctx"
+	ctxUtil "gitlab.com/renodesper/gokit-microservices/util/ctx"
 	e "gitlab.com/renodesper/gokit-microservices/util/error"
 	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
@@ -31,7 +32,9 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	// NOTE: Will be executed on the HTTP request object before the request is decoded
 	serverRequestOpts := []httptransport.RequestFunc{
-		ctxutil.FromHTTPRequest,
+		ctxUtil.ExtractRequestID,
+		ctxUtil.ExtractApiKey,
+		ctxUtil.ExtractJwtToken,
 	}
 
 	// NOTE: Will be executed on the HTTP response writer after the endpoint is invoked, but before anything written to the client
@@ -48,7 +51,8 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	// NOTE: Empty middlewares for the sake of example
 	middlewares := m.Middlewares{
 		Before: []kitendpoint.Middleware{
-			recover.CreateMiddleware(),
+			recover.CreateMiddleware(log),
+			apiKey.CreateMiddleware(log),
 		},
 		After: []kitendpoint.Middleware{},
 	}
@@ -109,7 +113,7 @@ func decodeNothing(_ context.Context, r *http.Request) (interface{}, error) {
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	requestID := ctxutil.GetRequestID(ctx)
+	requestID := ctxUtil.GetRequestID(ctx)
 	return json.NewEncoder(w).Encode(&resp.SuccessResponse{
 		Data: response,
 		Meta: resp.PopulateMeta(requestID),
@@ -127,7 +131,7 @@ func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 		er = er.WithoutStackTrace()
 	}
 
-	requestID := ctxutil.GetRequestID(ctx)
+	requestID := ctxUtil.GetRequestID(ctx)
 
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusBadRequest)

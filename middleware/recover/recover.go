@@ -6,10 +6,11 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/logger"
 )
 
 // CreateMiddleware ...
-func CreateMiddleware() endpoint.Middleware {
+func CreateMiddleware(log logger.Logger) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (result interface{}, e error) {
 			defer func() {

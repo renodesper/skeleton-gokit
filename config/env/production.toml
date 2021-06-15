@@ -4,6 +4,7 @@ scheme = "http"
 host = "aitheria.com"
 port = 8000
 version = "0.0.1"
+api_key = "FFF9807D-A576-4F29-A7C0-5BA493F63E78"
 
 [db]
 username = "user"

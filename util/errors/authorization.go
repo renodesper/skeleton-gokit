@@ -9,6 +9,8 @@ import (
 
 var (
 	InvalidSessionToken    = error.NewError(http.StatusUnauthorized, "AU2001", fmt.Errorf("session token is invalid"))
+	InvalidJwtToken        = error.NewError(http.StatusUnauthorized, "AU2002", fmt.Errorf("jwt token is invalid"))
+	InvalidApiKey          = error.NewError(http.StatusUnauthorized, "AU2003", fmt.Errorf("api key is invalid"))
 	InvalidLoginCredential = error.NewError(http.StatusBadRequest, "AU3004", fmt.Errorf("invalid login credential"))
 )
 
