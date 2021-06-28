@@ -1,4 +1,5 @@
 .vscode
 build
 vendor
+static
 tmp

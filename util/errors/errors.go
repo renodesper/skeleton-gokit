@@ -21,4 +21,5 @@ var (
 	InvalidRequest     = error.NewError(http.StatusBadRequest, "AU1001", fmt.Errorf("request is not valid"))
 	UnparsableJSON     = error.NewError(http.StatusBadRequest, "AU1002", fmt.Errorf("failed on parsing JSON"))
 	UnreadableResponse = error.NewError(http.StatusBadRequest, "AU1003", fmt.Errorf("failed to read response"))
+	FailedReadFile     = error.NewError(http.StatusBadRequest, "AU1004", fmt.Errorf("failed to read file"))
 )

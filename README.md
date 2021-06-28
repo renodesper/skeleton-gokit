@@ -4,24 +4,24 @@ This project was created to accommodates the needs of a bootstrap structure for 
 
 ## Todo
 
-* [x] Get Health Check Endpoint
-* [x] Create User Endpoint
-* [x] Get All Users Endpoint
-* [x] Get User Endpoint
-* [x] Update User Endpoint
-* [x] Set Access Token Endpoint
-* [x] Set User Status Endpoint
-* [x] Set User Role Endpoint
-* [x] Set User Expiry Endpoint
-* [x] Delete User Endpoint
-* [x] Google Login Auth Endpoint
-* [x] Google Callback Auth Endpoint
-* [x] Register Auth Endpoint
-* [x] Login Auth Endpoint
-* [x] Logout Auth Endpoint
-* [ ] Forgot Password Endpoint
-* [ ] Email notification after registration or forgot password
-* [ ] Remember Me Endpoint
+- [x] Get Health Check Endpoint
+- [x] Create User Endpoint
+- [x] Get All Users Endpoint
+- [x] Get User Endpoint
+- [x] Update User Endpoint
+- [x] Set Access Token Endpoint
+- [x] Set User Status Endpoint
+- [x] Set User Role Endpoint
+- [x] Set User Expiry Endpoint
+- [x] Delete User Endpoint
+- [x] Google Login Auth Endpoint
+- [x] Google Callback Auth Endpoint
+- [x] Register Auth Endpoint
+- [ ] Account Verification Endpoint
+- [x] Login Auth Endpoint
+- [x] Logout Auth Endpoint
+- [ ] Reset Password Endpoint
+- [ ] Email notification after registration or forgot password
 
 ## Setup database
 

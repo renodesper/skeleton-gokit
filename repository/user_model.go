@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	jsoniter "github.com/json-iterator/go"
 )
 
 type (
@@ -31,8 +30,6 @@ type (
 		CreatedFrom *string
 	}
 )
-
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // MarshalBinary ...
 func (u *User) MarshalBinary() ([]byte, error) {
