@@ -5,6 +5,9 @@ host = "aitheria.com"
 port = 8000
 version = "0.0.1"
 api_key = "FFF9807D-A576-4F29-A7C0-5BA493F63E78"
+name = "Aitheria"
+url = "https://renodesper.com"
+logo = ""
 
 [db]
 username = "user"
@@ -22,3 +25,11 @@ secret_key = "D56D60EC-75C7-4A1F-A1FA-5D7350DB8CFC"
 [google]
 client_id = "931375941509-4bvpoo37t11r8g2ivif564p867t44927.apps.googleusercontent.com"
 client_secret = "ZKVuAm0ejYqZ1l03WzCXlHT_"
+
+[mail]
+smtp_server = "smtp.gmail.com"
+smtp_port = 465
+smtp_user = "example@gmail.com"
+smtp_password = ""
+sender_email = "example@gmail.com"
+sender_identity = "example@gmail.com"
