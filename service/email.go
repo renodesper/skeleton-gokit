@@ -191,7 +191,7 @@ func (e *EmailSvc) Welcome(userName, token string) hermes.Email {
 					Instructions: fmt.Sprintf("To get started with %s, please confirm your account by clicking the button below:", e.Hermes.Product.Name),
 					Button: hermes.Button{
 						Text: "Confirm your account",
-						Link: fmt.Sprintf("%s/confirm?token=%s", e.Hermes.Product.Link, token),
+						Link: fmt.Sprintf("%s/confirm/%s", e.Hermes.Product.Link, token),
 					},
 				},
 			},

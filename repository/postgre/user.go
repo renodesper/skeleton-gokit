@@ -34,6 +34,8 @@ type (
 	}
 )
 
+var userTable = "user"
+
 // CreateUserRepository creates user repository
 func CreateUserRepository(db *pg.DB) UserRepository {
 	return &UserRepo{
@@ -53,7 +55,7 @@ func (ur *UserRepo) GetAllUsers(ctx context.Context, sortBy string, sort string,
 	}
 	order := fmt.Sprintf("%s %s", sortBy, sort)
 
-	err := ur.Db.Model(&users).Limit(limit).Offset(skip).Order(order).Select()
+	err := ur.Db.WithContext(ctx).Model(&users).Limit(limit).Offset(skip).Order(order).Select()
 	if err != nil {
 		return nil, errors.FailedUsersFetch.AppendError(err)
 	}
@@ -71,7 +73,7 @@ func (ur *UserRepo) GetAllUsersByCursor(ctx context.Context, sort string, direct
 		return nil, err
 	}
 
-	sql := ur.Db.Model(&users)
+	sql := ur.Db.WithContext(ctx).Model(&users)
 
 	if sort == "DESC" {
 		if direction == "next" {
@@ -107,7 +109,7 @@ func (ur *UserRepo) GetAllUsersByCursor(ctx context.Context, sort string, direct
 func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	sql := ur.Db.Model(&user).Where("id = ?", userID)
+	sql := ur.Db.WithContext(ctx).Model(&user).Where("id = ?", userID)
 	if opts.IsActive != nil {
 		sql.Where("is_active = ?", *opts.IsActive)
 	}
@@ -137,7 +139,7 @@ func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repo
 func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	sql := ur.Db.Model(&user).Where("email = ?", email)
+	sql := ur.Db.WithContext(ctx).Model(&user).Where("email = ?", email)
 	if opts.IsActive != nil {
 		sql.Where("is_active = ?", *opts.IsActive)
 	}
@@ -167,7 +169,7 @@ func (ur *UserRepo) GetUserByEmail(ctx context.Context, email string, opts repos
 func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	sql := ur.Db.Model(&user).Where("username = ?", username)
+	sql := ur.Db.WithContext(ctx).Model(&user).Where("username = ?", username)
 	if opts.IsActive != nil {
 		sql.Where("is_active = ?", *opts.IsActive)
 	}
@@ -197,7 +199,7 @@ func (ur *UserRepo) GetUserByUsername(ctx context.Context, username string, opts
 func (ur *UserRepo) GetUserByEmailPassword(ctx context.Context, email string, password string, opts repository.UserOptions) (*repository.User, error) {
 	user := repository.User{}
 
-	sql := ur.Db.Model(&user).Where("email = ?", email).Where("password = ?", password)
+	sql := ur.Db.WithContext(ctx).Model(&user).Where("email = ?", email).Where("password = ?", password)
 	if opts.IsActive != nil {
 		sql.Where("is_active = ?", *opts.IsActive)
 	}
@@ -239,7 +241,7 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, userID uuid.UUID, userPayloa
 	userPayload["updated_at"] = time.Now()
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -256,7 +258,7 @@ func (ur *UserRepo) SetAccessToken(ctx context.Context, userID uuid.UUID, access
 	}
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -271,7 +273,7 @@ func (ur *UserRepo) SetUserStatus(ctx context.Context, userID uuid.UUID, isActiv
 	}
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -286,7 +288,7 @@ func (ur *UserRepo) SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin b
 	}
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -301,7 +303,7 @@ func (ur *UserRepo) SetUserExpiry(ctx context.Context, userID uuid.UUID, expired
 	}
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -316,7 +318,7 @@ func (ur *UserRepo) DeleteUser(ctx context.Context, userID uuid.UUID) (*reposito
 	}
 
 	var user repository.User
-	_, err := ur.Db.Model(&userPayload).TableExpr("users").Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserDelete.AppendError(err)
 	}

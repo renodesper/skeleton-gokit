@@ -12,7 +12,7 @@ type (
 
 		ID           uuid.UUID `db:"id" json:"id"`
 		Username     string    `db:"username" json:"username"`
-		Email        string    `db:"email" validate:"email" json:"email" validate:"email"`
+		Email        string    `db:"email" json:"email" validate:"email"`
 		Password     string    `db:"password" json:"password"`
 		IsActive     bool      `db:"isActive" json:"isActive"`
 		IsDeleted    bool      `db:"isDeleted" json:"isDeleted"`

@@ -2,6 +2,8 @@ package postgre
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
@@ -21,6 +23,8 @@ type (
 	}
 )
 
+var verificationTable = "verification"
+
 func CreateVerificationRepository(db *pg.DB) VerificationRepository {
 	return &VerificationRepo{
 		Db: db,
@@ -31,7 +35,7 @@ func CreateVerificationRepository(db *pg.DB) VerificationRepository {
 func (vr *VerificationRepo) GetVerification(ctx context.Context, verificationType, token string, isActive bool) (*repository.Verification, error) {
 	verification := repository.Verification{}
 
-	sql := vr.Db.Model(&verification).
+	sql := vr.Db.WithContext(ctx).Model(&verification).
 		Where("type = ?", verificationType).
 		Where("token =?", token).
 		Where("is_active = ?", isActive)
@@ -51,6 +55,9 @@ func (vr *VerificationRepo) GetVerification(ctx context.Context, verificationTyp
 func (vr *VerificationRepo) CreateVerification(ctx context.Context, verificationPayload *repository.Verification) (*repository.Verification, error) {
 	var verification repository.Verification
 
+	b, _ := json.Marshal(verificationPayload)
+	fmt.Println(string(b))
+
 	_, err := vr.Db.WithContext(ctx).Model(verificationPayload).Returning("*").Insert(&verification)
 	if err != nil {
 		return nil, errors.FailedVerificationCreate.AppendError(err)
@@ -61,7 +68,7 @@ func (vr *VerificationRepo) CreateVerification(ctx context.Context, verification
 
 func (vr *VerificationRepo) Invalidate(ctx context.Context, verificationID uuid.UUID, verificationPayload map[string]interface{}) error {
 	var verification repository.Verification
-	_, err := vr.Db.Model(&verificationPayload).TableExpr("verifications").Where("id = ?", verificationID).Returning("*").Update(&verification)
+	_, err := vr.Db.WithContext(ctx).Model(&verificationPayload).Table(verificationTable).Where("id = ?", verificationID).Returning("*").Update(&verification)
 	if err != nil {
 		return errors.FailedVerificationUpdate.AppendError(err)
 	}
