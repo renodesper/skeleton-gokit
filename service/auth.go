@@ -63,7 +63,7 @@ func (o *OauthSvc) Login(ctx context.Context, email string, password string) (*T
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		o.Log.Info(err)
 		return nil, errors.InvalidLoginCredential
