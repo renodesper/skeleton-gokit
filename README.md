@@ -17,7 +17,7 @@ This project was created to accommodates the needs of a bootstrap structure for 
 - [x] Google Login Auth Endpoint
 - [x] Google Callback Auth Endpoint
 - [x] Register Auth Endpoint
-- [ ] Account Verification Endpoint
+- [x] Account Verification Endpoint
 - [x] Login Auth Endpoint
 - [x] Logout Auth Endpoint
 - [ ] Reset Password Endpoint

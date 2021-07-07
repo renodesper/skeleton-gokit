@@ -24,5 +24,9 @@ var (
 )
 
 var (
-	FailedVerificationCreate = error.NewError(http.StatusInternalServerError, "PG3201", fmt.Errorf("unable to create verification"))
+	FailedVerificationCreate        = error.NewError(http.StatusInternalServerError, "PG3201", fmt.Errorf("unable to create verification"))
+	FailedVerificationUpdate        = error.NewError(http.StatusInternalServerError, "PG3202", fmt.Errorf("unable to update verification"))
+	FailedVerificationFetch         = error.NewError(http.StatusInternalServerError, "PG3203", fmt.Errorf("unable to fetch verification"))
+	FailedVerificationExpiredToken  = error.NewError(http.StatusInternalServerError, "PG3204", fmt.Errorf("token is expired"))
+	FailedVerificationMismatchToken = error.NewError(http.StatusInternalServerError, "PG3205", fmt.Errorf("token is invalid"))
 )

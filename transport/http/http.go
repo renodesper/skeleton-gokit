@@ -74,6 +74,9 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	RegisterAuthEndpoint := m.Chain(middlewares)(endpoints.RegisterAuthEndpoint)
 	r.Post("/register", httptransport.NewServer(RegisterAuthEndpoint, decodeRegisterAuthRequest, encodeResponse, serverOpts...))
 
+	VerifyRegistrationEndpoint := m.Chain(middlewares)(endpoints.VerifyRegistrationEndpoint)
+	r.Get("/confirm/:token", httptransport.NewServer(VerifyRegistrationEndpoint, decodeVerifyRegistrationRequest, encodeResponse, serverOpts...))
+
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))
 

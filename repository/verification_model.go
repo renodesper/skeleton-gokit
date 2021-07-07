@@ -8,6 +8,8 @@ import (
 
 type (
 	Verification struct {
+		tableName struct{} `pg:"verification"`
+
 		ID        uuid.UUID `db:"id" json:"id"`
 		UserID    uuid.UUID `db:"userId" json:"userId"`
 		Type      string    `db:"type" json:"type"`
@@ -16,6 +18,10 @@ type (
 		ExpiredAt time.Time `db:"expiredAt" json:"expiredAt"`
 		CreatedAt time.Time `db:"createdAt" json:"createdAt"`
 		UpdatedAt time.Time `db:"updatedAt" json:"updatedAt"`
+	}
+
+	VerificationOptions struct {
+		IsActive *bool
 	}
 )
 

@@ -21,15 +21,17 @@ type Set struct {
 	SetUserStatusEndpoint      endpoint.Endpoint
 	SetUserRoleEndpoint        endpoint.Endpoint
 	SetUserExpiryEndpoint      endpoint.Endpoint
+	VerifyRegistrationEndpoint endpoint.Endpoint
 }
 
 // New ...
 func New(
+	env string,
 	healthSvc service.HealthService,
 	googleOauthSvc service.GoogleOauthService,
 	oauthSvc service.OauthService,
 	userSvc service.UserService,
-	env string,
+	verificationSvc service.VerificationService,
 ) Set {
 	return Set{
 		GoogleLoginAuthEndpoint:    MakeGoogleLoginAuthEndpoint(googleOauthSvc),
@@ -47,5 +49,6 @@ func New(
 		SetUserRoleEndpoint:        MakeSetUserRoleEndpoint(userSvc),
 		SetUserExpiryEndpoint:      MakeSetUserExpiryEndpoint(userSvc),
 		DeleteUserEndpoint:         MakeDeleteUserEndpoint(userSvc),
+		VerifyRegistrationEndpoint: MakeVerifyRegistrationEndpoint(verificationSvc),
 	}
 }

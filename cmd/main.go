@@ -57,8 +57,9 @@ func main() {
 	googleAuthSvc := service.NewGoogleOauthService(log, db)
 	authSvc := service.NewOauthService(log, db)
 	userSvc := service.NewUserService(log, db)
+	verificationSvc := service.NewVerificationService(log, db)
 
-	endpoint := api.New(healthSvc, googleAuthSvc, authSvc, userSvc, env)
+	endpoint := api.New(env, healthSvc, googleAuthSvc, authSvc, userSvc, verificationSvc)
 	handler := httptransport.NewHTTPHandler(endpoint, log)
 	handler = cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

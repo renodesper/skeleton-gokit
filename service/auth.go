@@ -162,10 +162,11 @@ func (o *OauthSvc) Register(ctx context.Context, username string, email string, 
 
 	verificationToken := uuid.New()
 	verificationPayload := repository.Verification{
-		UserID:   user.ID,
-		Type:     constant.VerificationTypeRegistration,
-		Token:    verificationToken.String(),
-		IsActive: true,
+		UserID:    user.ID,
+		Type:      constant.VerificationTypeRegistration,
+		Token:     verificationToken.String(),
+		IsActive:  true,
+		ExpiredAt: time.Now().Add(30 * 24 * time.Hour), // NOTE: Token is active for 30 days
 	}
 	_, err = o.Verification.CreateVerification(ctx, &verificationPayload)
 	if err != nil {
