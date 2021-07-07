@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS verifications (
+CREATE TABLE IF NOT EXISTS "verification" (
   id uuid DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL,
   type VARCHAR NOT NULL,
@@ -9,6 +9,3 @@ CREATE TABLE IF NOT EXISTS verifications (
   updated_at TIMESTAMP DEFAULT NULL,
   PRIMARY KEY (id)
 );
-
--- Used when we implement get by cursor
--- CREATE INDEX idx_user_pagination ON users (created_at, id);

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS "user" (
   id uuid DEFAULT uuid_generate_v4(),
   username VARCHAR NOT NULL,
   email VARCHAR NOT NULL,
@@ -14,6 +14,3 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP DEFAULT NULL,
   PRIMARY KEY (id)
 );
-
--- Used when we implement get by cursor
--- CREATE INDEX idx_user_pagination ON users (created_at, id);

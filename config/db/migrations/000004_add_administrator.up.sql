@@ -1,5 +1,5 @@
 INSERT INTO
-  users (username, email, password, is_active, is_admin, created_from)
+  "user" (username, email, password, is_active, is_admin, created_from)
 VALUES
   (
     'admin',

@@ -8,6 +8,8 @@ import (
 
 type (
 	User struct {
+		tableName struct{} `pg:"user"`
+
 		ID           uuid.UUID `db:"id" json:"id"`
 		Username     string    `db:"username" json:"username"`
 		Email        string    `db:"email" validate:"email" json:"email" validate:"email"`
