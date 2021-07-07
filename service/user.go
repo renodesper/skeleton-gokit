@@ -154,7 +154,7 @@ func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *Up
 			return nil, err
 		}
 
-		userPayload["password"] = password
+		userPayload["password"] = string(password)
 	}
 
 	user, err := us.User.UpdateUser(ctx, userID, userPayload)
