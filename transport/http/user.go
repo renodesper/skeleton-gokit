@@ -108,6 +108,30 @@ func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, e
 	return req, nil
 }
 
+func decodeSetPasswordRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.SetPasswordRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
+	return req, nil
+}
+
 func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetAccessTokenRequest
 

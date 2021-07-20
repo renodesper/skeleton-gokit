@@ -105,6 +105,9 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	UpdateUserEndpoint := m.Chain(middlewares)(endpoints.UpdateUserEndpoint)
 	r.Put("/users/:id", httptransport.NewServer(UpdateUserEndpoint, decodeUpdateUserRequest, encodeResponse, serverOpts...))
 
+	SetPasswordEndpoint := m.Chain(middlewares)(endpoints.SetPasswordEndpoint)
+	r.Put("/users/:id/password", httptransport.NewServer(SetPasswordEndpoint, decodeSetPasswordRequest, encodeResponse, serverOpts...))
+
 	SetAccessTokenEndpoint := m.Chain(middlewares)(endpoints.SetAccessTokenEndpoint)
 	r.Put("/users/:id/accessToken", httptransport.NewServer(SetAccessTokenEndpoint, decodeSetAccessTokenRequest, encodeResponse, serverOpts...))
 
@@ -115,7 +118,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	r.Put("/users/:id/role", httptransport.NewServer(SetUserRoleEndpoint, decodeSetUserRoleRequest, encodeResponse, serverOpts...))
 
 	SetUserExpiryEndpoint := m.Chain(middlewares)(endpoints.SetUserExpiryEndpoint)
-	r.Put("/users/:id/expiry", httptransport.NewServer(SetUserExpiryEndpoint, decodeUpdateUserRequest, encodeResponse, serverOpts...))
+	r.Put("/users/:id/expiry", httptransport.NewServer(SetUserExpiryEndpoint, decodeSetUserExpiryEndpoint, encodeResponse, serverOpts...))
 
 	DeleteUserEndpoint := m.Chain(middlewares)(endpoints.DeleteUserEndpoint)
 	r.Delete("/users/:id", httptransport.NewServer(DeleteUserEndpoint, decodeDeleteUserRequest, encodeResponse, serverOpts...))

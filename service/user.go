@@ -20,6 +20,7 @@ type (
 		GetUser(ctx context.Context, userID uuid.UUID) (*repository.User, error)
 		CreateUser(ctx context.Context, payload *CreateUserRequest) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, payload *UpdateUserRequest) (*repository.User, error)
+		SetPassword(ctx context.Context, userID uuid.UUID, password, verifyPassword string) (*repository.User, error)
 		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error)
 		SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error)
 		SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error)
@@ -48,7 +49,8 @@ type (
 
 // NewUserService creates user service
 func NewUserService(log logger.Logger, db *pg.DB) UserService {
-	userRepo := postgre.CreateUserRepository(db)
+	userRepo := postgre.CreateUserRepository(log, db)
+
 	return &UserSvc{
 		Log:  log,
 		User: userRepo,
@@ -158,6 +160,24 @@ func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *Up
 	}
 
 	user, err := us.User.UpdateUser(ctx, userID, userPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (us *UserSvc) SetPassword(ctx context.Context, userID uuid.UUID, password, verifyPassword string) (*repository.User, error) {
+	if password != verifyPassword {
+		return nil, errors.FailedPasswordMismatch
+	}
+
+	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := us.User.SetPassword(ctx, userID, string(passwd))
 	if err != nil {
 		return nil, err
 	}

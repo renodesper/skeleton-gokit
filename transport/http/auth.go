@@ -10,7 +10,6 @@ import (
 	"github.com/go-playground/validator"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	ctxUtil "gitlab.com/renodesper/gokit-microservices/util/ctx"
-	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
 	"golang.org/x/oauth2"
@@ -36,7 +35,7 @@ func decodeGoogleCallbackAuthRequest(_ context.Context, r *http.Request) (interf
 	code := r.FormValue("code")
 
 	if state != oauthState.Value {
-		return nil, errors.InvalidGoogleOauthState
+		return nil, errs.InvalidGoogleOauthState
 	}
 
 	var req endpoint.CallbackAuthRequest

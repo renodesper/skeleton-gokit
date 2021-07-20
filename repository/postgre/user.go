@@ -10,6 +10,7 @@ import (
 	"gitlab.com/renodesper/gokit-microservices/repository"
 	"gitlab.com/renodesper/gokit-microservices/util/cursor"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/logger"
 )
 
 type (
@@ -22,6 +23,7 @@ type (
 		GetUserByEmailPassword(ctx context.Context, email string, password string, opts repository.UserOptions) (*repository.User, error)
 		CreateUser(ctx context.Context, userPayload *repository.User) (*repository.User, error)
 		UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error)
+		SetPassword(ctx context.Context, userID uuid.UUID, password string) (*repository.User, error)
 		SetAccessToken(ctx context.Context, userID uuid.UUID, accessToken string, refreshToken string, expiredAt time.Time) (*repository.User, error)
 		SetUserStatus(ctx context.Context, userID uuid.UUID, isActive bool) (*repository.User, error)
 		SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin bool) (*repository.User, error)
@@ -30,16 +32,20 @@ type (
 	}
 
 	UserRepo struct {
-		Db *pg.DB
+		Log logger.Logger
+		Db  *pg.DB
 	}
 )
 
-var userTable = "user"
+var (
+	userTable = "user"
+)
 
 // CreateUserRepository creates user repository
-func CreateUserRepository(db *pg.DB) UserRepository {
+func CreateUserRepository(log logger.Logger, db *pg.DB) UserRepository {
 	return &UserRepo{
-		Db: db,
+		Log: log,
+		Db:  db,
 	}
 }
 
@@ -239,6 +245,21 @@ func (ur *UserRepo) CreateUser(ctx context.Context, userPayload *repository.User
 
 func (ur *UserRepo) UpdateUser(ctx context.Context, userID uuid.UUID, userPayload map[string]interface{}) (*repository.User, error) {
 	userPayload["updated_at"] = time.Now()
+
+	var user repository.User
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	if err != nil {
+		return nil, errors.FailedUserUpdate.AppendError(err)
+	}
+
+	return &user, nil
+}
+
+func (ur *UserRepo) SetPassword(ctx context.Context, userID uuid.UUID, password string) (*repository.User, error) {
+	userPayload := map[string]interface{}{
+		"password":   password,
+		"updated_at": time.Now(),
+	}
 
 	var user repository.User
 	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
