@@ -44,7 +44,7 @@ const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_
 
 // NewGoogleAuthService creates auth google service
 func NewGoogleOauthService(log logger.Logger, db *pg.DB) GoogleOauthService {
-	userRepo := postgre.CreateUserRepository(db)
+	userRepo := postgre.CreateUserRepository(log, db)
 	oauthSvc := NewOauthSvc(log, db)
 
 	return &GoogleOauthSvc{

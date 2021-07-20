@@ -203,7 +203,6 @@ func (e *EmailSvc) Welcome(userName, token string) hermes.Email {
 	}
 }
 
-// TODO: Unfinished
 func (e *EmailSvc) ResetPassword(userName, token string) hermes.Email {
 	return hermes.Email{
 		Body: hermes.Body{
@@ -215,9 +214,8 @@ func (e *EmailSvc) ResetPassword(userName, token string) hermes.Email {
 				{
 					Instructions: "Click the button below to reset your password:",
 					Button: hermes.Button{
-						Color: "#DC4D2F",
-						Text:  "Reset your password",
-						Link:  fmt.Sprintf("%s/reset-password?token=%s", e.Hermes.Product.Link, token),
+						Text: "Reset your password",
+						Link: fmt.Sprintf("%s/reset-password/%s", e.Hermes.Product.Link, token),
 					},
 				},
 			},

@@ -21,6 +21,7 @@ type (
 		Login(ctx context.Context, email string, password string) (*Token, error)
 		Logout(ctx context.Context, userID uuid.UUID) error
 		Register(ctx context.Context, username string, email string, passwd string, isActive bool, isDeleted bool, isAdmin bool, createdFrom string) (*Token, error)
+		RequestResetPassword(ctx context.Context, email string) (*repository.User, error)
 	}
 
 	OauthSvc struct {
@@ -33,8 +34,8 @@ type (
 
 // NewOauthService creates auth service
 func NewOauthService(log logger.Logger, db *pg.DB) OauthService {
-	userRepo := postgre.CreateUserRepository(db)
-	verificationRepo := postgre.CreateVerificationRepository(db)
+	userRepo := postgre.CreateUserRepository(log, db)
+	verificationRepo := postgre.CreateVerificationRepository(log, db)
 	emailSvc := NewEmailSvc(log)
 
 	return &OauthSvc{
@@ -47,7 +48,7 @@ func NewOauthService(log logger.Logger, db *pg.DB) OauthService {
 
 // NewOauthSvc creates auth service
 func NewOauthSvc(log logger.Logger, db *pg.DB) *OauthSvc {
-	userRepo := postgre.CreateUserRepository(db)
+	userRepo := postgre.CreateUserRepository(log, db)
 	emailSvc := NewEmailSvc(log)
 
 	return &OauthSvc{
@@ -113,7 +114,7 @@ func (o *OauthSvc) Register(ctx context.Context, username string, email string, 
 	}
 
 	// NOTE: Check for existing email
-	userByEmail, _ := o.User.GetUserByEmail(ctx, email, repository.UserOptions{})
+	userByEmail, err := o.User.GetUserByEmail(ctx, email, repository.UserOptions{})
 
 	if err != nil {
 		if wErr, ok := err.(e.Error); ok && wErr.Code != errors.FailedNoRows.Code {
@@ -166,7 +167,7 @@ func (o *OauthSvc) Register(ctx context.Context, username string, email string, 
 		Type:      constant.VerificationTypeRegistration,
 		Token:     verificationToken.String(),
 		IsActive:  true,
-		ExpiredAt: time.Now().Add(30 * 24 * time.Hour), // NOTE: Token is active for 30 days
+		ExpiredAt: time.Now().Add(24 * time.Hour), // NOTE: Token is active for 1 day
 	}
 	_, err = o.Verification.CreateVerification(ctx, &verificationPayload)
 	if err != nil {
@@ -183,4 +184,36 @@ func (o *OauthSvc) Register(ctx context.Context, username string, email string, 
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, nil
+}
+
+func (o *OauthSvc) RequestResetPassword(ctx context.Context, email string) (*repository.User, error) {
+	// NOTE: Check for existing user
+	user, err := o.User.GetUserByEmail(ctx, email, repository.UserOptions{})
+
+	if err != nil {
+		if wErr, ok := err.(e.Error); ok && wErr.Code != errors.FailedNoRows.Code {
+			return nil, err
+		}
+	}
+
+	verificationToken := uuid.New()
+	verificationPayload := repository.Verification{
+		UserID:    user.ID,
+		Type:      constant.VerificationTypeResetPassword,
+		Token:     verificationToken.String(),
+		IsActive:  true,
+		ExpiredAt: time.Now().Add(24 * time.Hour), // NOTE: Token is active for 1 day
+	}
+	_, err = o.Verification.CreateVerification(ctx, &verificationPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	hEmail := o.EmailSvc.ResetPassword(user.Username, verificationToken.String())
+	err = o.EmailSvc.SendMail(user.ID.String(), user.Email, constant.EmailSubjectResetPassword, hEmail, constant.EmailTypeResetPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

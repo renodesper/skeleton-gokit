@@ -32,6 +32,10 @@ type (
 		IsAdmin     bool   `json:"isAdmin"`
 		CreatedFrom string `json:"createdFrom"`
 	}
+
+	RequestResetPasswordAuthRequest struct {
+		Email string `validate:"required"`
+	}
 )
 
 func MakeGoogleLoginAuthEndpoint(googleOauthSvc service.GoogleOauthService) endpoint.Endpoint {
@@ -95,5 +99,18 @@ func MakeRegisterAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
 		}
 
 		return user, nil
+	}
+}
+
+func MakeRequestResetPasswordAuthEndpoint(oauthSvc service.OauthService, userSvc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(RequestResetPasswordAuthRequest)
+
+		_, err = oauthSvc.RequestResetPassword(ctx, req.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		return "OK", nil
 	}
 }

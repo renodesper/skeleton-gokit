@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.com/renodesper/gokit-microservices/repository"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/logger"
 )
 
 type (
@@ -19,15 +20,17 @@ type (
 	}
 
 	VerificationRepo struct {
-		Db *pg.DB
+		Log logger.Logger
+		Db  *pg.DB
 	}
 )
 
 var verificationTable = "verification"
 
-func CreateVerificationRepository(db *pg.DB) VerificationRepository {
+func CreateVerificationRepository(log logger.Logger, db *pg.DB) VerificationRepository {
 	return &VerificationRepo{
-		Db: db,
+		Log: log,
+		Db:  db,
 	}
 }
 

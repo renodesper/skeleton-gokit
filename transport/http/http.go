@@ -48,7 +48,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
-	// NOTE: Empty middlewares for the sake of example
+	// NOTE: Middlewares
 	middlewares := m.Middlewares{
 		Before: []kitendpoint.Middleware{
 			recover.CreateMiddleware(log),
@@ -56,7 +56,14 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 		},
 		After: []kitendpoint.Middleware{},
 	}
+	publicMiddlewares := m.Middlewares{
+		Before: []kitendpoint.Middleware{
+			recover.CreateMiddleware(log),
+		},
+		After: []kitendpoint.Middleware{},
+	}
 
+	// NOTE: Routes
 	r.NotFound(http.HandlerFunc(notFound))
 
 	GoogleLoginAuthEndpoint := m.Chain(middlewares)(endpoints.GoogleLoginAuthEndpoint)
@@ -74,8 +81,14 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	RegisterAuthEndpoint := m.Chain(middlewares)(endpoints.RegisterAuthEndpoint)
 	r.Post("/register", httptransport.NewServer(RegisterAuthEndpoint, decodeRegisterAuthRequest, encodeResponse, serverOpts...))
 
-	VerifyRegistrationEndpoint := m.Chain(middlewares)(endpoints.VerifyRegistrationEndpoint)
-	r.Get("/confirm/:token", httptransport.NewServer(VerifyRegistrationEndpoint, decodeVerifyRegistrationRequest, encodeResponse, serverOpts...))
+	VerifyRegistrationEndpoint := m.Chain(publicMiddlewares)(endpoints.VerifyRegistrationEndpoint)
+	r.Get("/confirm/:token", httptransport.NewServer(VerifyRegistrationEndpoint, decodeVerifyTokenRequest, encodeVerifyRegistrationResponse, serverOpts...))
+
+	RequestResetPasswordAuthEndpoint := m.Chain(middlewares)(endpoints.RequestResetPasswordAuthEndpoint)
+	r.Post("/reset-password", httptransport.NewServer(RequestResetPasswordAuthEndpoint, decodeRequestResetPasswordAuthRequest, encodeResponse, serverOpts...))
+
+	VerifyResetPasswordEndpoint := m.Chain(publicMiddlewares)(endpoints.VerifyResetPasswordEndpoint)
+	r.Get("/reset-password/:token", httptransport.NewServer(VerifyResetPasswordEndpoint, decodeVerifyTokenRequest, encodeVerifyResetPasswordResponse, serverOpts...))
 
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))

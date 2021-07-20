@@ -105,3 +105,19 @@ func decodeRegisterAuthRequest(_ context.Context, r *http.Request) (interface{},
 
 	return req, nil
 }
+
+func decodeRequestResetPasswordAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req endpoint.RequestResetPasswordAuthRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errs.UnparsableJSON
+	}
+	defer r.Body.Close()
+
+	validate = validator.New()
+	if err := validate.Struct(req); err != nil {
+		return nil, errs.InvalidRequest
+	}
+
+	return req, nil
+}

@@ -25,44 +25,50 @@ type (
 	}
 
 	GetUserRequest struct {
-		ID uuid.UUID
+		ID uuid.UUID `json:"id" validate:"required"`
 	}
 
 	UpdateUserRequest struct {
-		ID       uuid.UUID
+		ID       uuid.UUID `json:"id" validate:"required"`
 		Username string
 		Email    string
 		Password string
 	}
 
 	DeleteUserRequest struct {
-		ID uuid.UUID
+		ID uuid.UUID `json:"id" validate:"required"`
+	}
+
+	SetPasswordRequest struct {
+		ID             uuid.UUID `json:"id" validate:"required"`
+		Password       string    `json:"password" validate:"required"`
+		VerifyPassword string    `json:"verifyPassword" validate:"required"`
 	}
 
 	SetAccessTokenRequest struct {
-		ID           uuid.UUID
-		AccessToken  string
-		RefreshToken string
+		ID           uuid.UUID `json:"id" validate:"required"`
+		AccessToken  string    `json:"accessToken" validate:"required"`
+		RefreshToken string    `json:"refreshToken" validate:"required"`
 		ExpiredAt    time.Time
 	}
 
 	SetUserStatusRequest struct {
-		ID       uuid.UUID
-		IsActive bool
+		ID       uuid.UUID `json:"id" validate:"required"`
+		IsActive bool      `json:"isActive" validate:"required"`
 	}
 
 	SetUserRoleRequest struct {
-		ID      uuid.UUID
-		IsAdmin bool
+		ID      uuid.UUID `json:"id" validate:"required"`
+		IsAdmin bool      `json:"isAdmin" validate:"required"`
 	}
 
 	SetUserExpiryRequest struct {
-		ID        uuid.UUID
-		ExpiredAt time.Time
+		ID        uuid.UUID `json:"id" validate:"required"`
+		ExpiredAt time.Time `json:"expiredAt" validate:"required"`
 	}
 )
 
-func MakeCreateUserEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeCreateUserEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CreateUserRequest)
 
@@ -73,7 +79,7 @@ func MakeCreateUserEndpoint(svc service.UserService) endpoint.Endpoint {
 			IsAdmin:  req.IsAdmin,
 		}
 
-		isSuccess, err := svc.CreateUser(ctx, &userReq)
+		isSuccess, err := userSvc.CreateUser(ctx, &userReq)
 		if err != nil {
 			return nil, err
 		}
@@ -82,11 +88,11 @@ func MakeCreateUserEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeGetAllUsersEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeGetAllUsersEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetAllUsersRequest)
 
-		users, err := svc.GetAllUsers(ctx, req.SortBy, req.Sort, req.Skip, req.Limit)
+		users, err := userSvc.GetAllUsers(ctx, req.SortBy, req.Sort, req.Skip, req.Limit)
 		if err != nil {
 			return nil, err
 		}
@@ -105,11 +111,11 @@ func MakeGetAllUsersEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeGetUserEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeGetUserEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetUserRequest)
 
-		user, err := svc.GetUser(ctx, req.ID)
+		user, err := userSvc.GetUser(ctx, req.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +124,7 @@ func MakeGetUserEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeUpdateUserEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeUpdateUserEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(UpdateUserRequest)
 
@@ -128,7 +134,7 @@ func MakeUpdateUserEndpoint(svc service.UserService) endpoint.Endpoint {
 			Password: req.Password,
 		}
 
-		user, err := svc.UpdateUser(ctx, req.ID, &userPayload)
+		user, err := userSvc.UpdateUser(ctx, req.ID, &userPayload)
 		if err != nil {
 			return nil, err
 		}
@@ -137,11 +143,24 @@ func MakeUpdateUserEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeSetAccessTokenEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeSetPasswordEndpoint(userSvc service.UserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(SetPasswordRequest)
+
+		user, err := userSvc.SetPassword(ctx, req.ID, req.Password, req.VerifyPassword)
+		if err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+}
+
+func MakeSetAccessTokenEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(SetAccessTokenRequest)
 
-		user, err := svc.SetAccessToken(ctx, req.ID, req.AccessToken, req.RefreshToken, req.ExpiredAt)
+		user, err := userSvc.SetAccessToken(ctx, req.ID, req.AccessToken, req.RefreshToken, req.ExpiredAt)
 		if err != nil {
 			return nil, err
 		}
@@ -150,11 +169,11 @@ func MakeSetAccessTokenEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeSetUserStatusEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeSetUserStatusEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(SetUserStatusRequest)
 
-		user, err := svc.SetUserStatus(ctx, req.ID, req.IsActive)
+		user, err := userSvc.SetUserStatus(ctx, req.ID, req.IsActive)
 		if err != nil {
 			return nil, err
 		}
@@ -163,11 +182,11 @@ func MakeSetUserStatusEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeSetUserRoleEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeSetUserRoleEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(SetUserRoleRequest)
 
-		user, err := svc.SetUserRole(ctx, req.ID, req.IsAdmin)
+		user, err := userSvc.SetUserRole(ctx, req.ID, req.IsAdmin)
 		if err != nil {
 			return nil, err
 		}
@@ -176,11 +195,11 @@ func MakeSetUserRoleEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeSetUserExpiryEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeSetUserExpiryEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(SetUserExpiryRequest)
 
-		user, err := svc.SetUserExpiry(ctx, req.ID, req.ExpiredAt)
+		user, err := userSvc.SetUserExpiry(ctx, req.ID, req.ExpiredAt)
 		if err != nil {
 			return nil, err
 		}
@@ -189,11 +208,11 @@ func MakeSetUserExpiryEndpoint(svc service.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeDeleteUserEndpoint(svc service.UserService) endpoint.Endpoint {
+func MakeDeleteUserEndpoint(userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DeleteUserRequest)
 
-		user, err := svc.DeleteUser(ctx, req.ID)
+		user, err := userSvc.DeleteUser(ctx, req.ID)
 		if err != nil {
 			return nil, err
 		}
