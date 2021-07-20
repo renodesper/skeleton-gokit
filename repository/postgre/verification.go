@@ -2,8 +2,6 @@ package postgre
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
@@ -57,9 +55,6 @@ func (vr *VerificationRepo) GetVerification(ctx context.Context, verificationTyp
 
 func (vr *VerificationRepo) CreateVerification(ctx context.Context, verificationPayload *repository.Verification) (*repository.Verification, error) {
 	var verification repository.Verification
-
-	b, _ := json.Marshal(verificationPayload)
-	fmt.Println(string(b))
 
 	_, err := vr.Db.WithContext(ctx).Model(verificationPayload).Returning("*").Insert(&verification)
 	if err != nil {

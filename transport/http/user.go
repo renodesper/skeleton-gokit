@@ -87,6 +87,14 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.UpdateUserRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -96,14 +104,6 @@ func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, e
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }
@@ -111,6 +111,14 @@ func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, e
 func decodeSetPasswordRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetPasswordRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -120,14 +128,6 @@ func decodeSetPasswordRequest(_ context.Context, r *http.Request) (interface{}, 
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }
@@ -135,6 +135,14 @@ func decodeSetPasswordRequest(_ context.Context, r *http.Request) (interface{}, 
 func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetAccessTokenRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -144,14 +152,6 @@ func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }
@@ -159,6 +159,14 @@ func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{
 func decodeSetUserStatusRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetUserStatusRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -168,14 +176,6 @@ func decodeSetUserStatusRequest(_ context.Context, r *http.Request) (interface{}
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }
@@ -183,6 +183,14 @@ func decodeSetUserStatusRequest(_ context.Context, r *http.Request) (interface{}
 func decodeSetUserRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetUserRoleRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -192,14 +200,6 @@ func decodeSetUserRoleRequest(_ context.Context, r *http.Request) (interface{}, 
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }
@@ -207,6 +207,14 @@ func decodeSetUserRoleRequest(_ context.Context, r *http.Request) (interface{}, 
 func decodeSetUserExpiryEndpoint(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.SetUserExpiryRequest
 
+	IDStr := bone.GetValue(r, "id")
+	ID, err := uuid.Parse(IDStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req.ID = ID
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errs.UnparsableJSON
 	}
@@ -216,14 +224,6 @@ func decodeSetUserExpiryEndpoint(_ context.Context, r *http.Request) (interface{
 	if err := validate.Struct(req); err != nil {
 		return nil, errs.InvalidRequest
 	}
-
-	IDStr := bone.GetValue(r, "id")
-	ID, err := uuid.Parse(IDStr)
-	if err != nil {
-		return nil, err
-	}
-
-	req.ID = ID
 
 	return req, nil
 }

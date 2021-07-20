@@ -8,7 +8,6 @@ import (
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
 	"gitlab.com/renodesper/gokit-microservices/repository"
-	"gitlab.com/renodesper/gokit-microservices/util/cursor"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
 )
@@ -16,7 +15,7 @@ import (
 type (
 	UserRepository interface {
 		GetAllUsers(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.User, error)
-		GetAllUsersByCursor(ctx context.Context, cursor string, direction string, limit int, sort string) ([]repository.User, error)
+		// GetAllUsersByCursor(ctx context.Context, cursor string, direction string, limit int, sort string) ([]repository.User, error)
 		GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error)
 		GetUserByEmail(ctx context.Context, email string, opts repository.UserOptions) (*repository.User, error)
 		GetUserByUsername(ctx context.Context, username string, opts repository.UserOptions) (*repository.User, error)
@@ -38,7 +37,9 @@ type (
 )
 
 var (
-	userTable = "user"
+	userTable      = "user"
+	excludeColumns = []string{"password", "access_token", "refresh_token"}
+	returnFields   = "id, username, email, is_active, is_deleted, is_admin, created_from, expired_at, created_at, updated_at"
 )
 
 // CreateUserRepository creates user repository
@@ -61,7 +62,7 @@ func (ur *UserRepo) GetAllUsers(ctx context.Context, sortBy string, sort string,
 	}
 	order := fmt.Sprintf("%s %s", sortBy, sort)
 
-	err := ur.Db.WithContext(ctx).Model(&users).Limit(limit).Offset(skip).Order(order).Select()
+	err := ur.Db.WithContext(ctx).Model(&users).Limit(limit).Offset(skip).Order(order).ExcludeColumn(excludeColumns...).Select()
 	if err != nil {
 		return nil, errors.FailedUsersFetch.AppendError(err)
 	}
@@ -70,46 +71,46 @@ func (ur *UserRepo) GetAllUsers(ctx context.Context, sortBy string, sort string,
 }
 
 // GetAllUsersByCursor will be more effective for feed type list
-func (ur *UserRepo) GetAllUsersByCursor(ctx context.Context, sort string, direction string, limit int, encodedCursor string) ([]repository.User, error) {
-	var users []repository.User
+// func (ur *UserRepo) GetAllUsersByCursor(ctx context.Context, sort string, direction string, limit int, encodedCursor string) ([]repository.User, error) {
+// 	var users []repository.User
 
-	createdAt, userIDStr, err := cursor.DecodeCursor(encodedCursor)
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		return nil, err
-	}
+// 	createdAt, userIDStr, err := cursor.DecodeCursor(encodedCursor)
+// 	userID, err := uuid.Parse(userIDStr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	sql := ur.Db.WithContext(ctx).Model(&users)
+// 	sql := ur.Db.WithContext(ctx).Model(&users)
 
-	if sort == "DESC" {
-		if direction == "next" {
-			sql.Where("created_at <= ?", createdAt).Where("id < ?", userID).Order("created_at DESC")
-		} else {
-			sql.Where("created_at >= ?", createdAt).Where("id > ?", userID).Order("created_at ASC")
-		}
-	} else {
-		if direction == "next" {
-			sql.Where("created_at >= ?", createdAt).Where("id > ?", userID).Order("created_at ASC")
-		} else {
-			sql.Where("created_at <= ?", createdAt).Where("id < ?", userID).Order("created_at DESC")
-		}
-	}
+// 	if sort == "DESC" {
+// 		if direction == "next" {
+// 			sql.Where("created_at <= ?", createdAt).Where("id < ?", userID).Order("created_at DESC")
+// 		} else {
+// 			sql.Where("created_at >= ?", createdAt).Where("id > ?", userID).Order("created_at ASC")
+// 		}
+// 	} else {
+// 		if direction == "next" {
+// 			sql.Where("created_at >= ?", createdAt).Where("id > ?", userID).Order("created_at ASC")
+// 		} else {
+// 			sql.Where("created_at <= ?", createdAt).Where("id < ?", userID).Order("created_at DESC")
+// 		}
+// 	}
 
-	err = sql.Limit(limit).Select()
-	if err != nil {
-		return nil, err
-	}
+// 	err = sql.Limit(limit).ExcludeColumn(excludeColumns...).Select()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if direction != "next" {
-		newUsers := make([]repository.User, 0, len(users))
-		for i := len(users) - 1; i >= 0; i-- {
-			newUsers = append(newUsers, users[i])
-		}
-		return newUsers, nil
-	}
+// 	if direction != "next" {
+// 		newUsers := make([]repository.User, 0, len(users))
+// 		for i := len(users) - 1; i >= 0; i-- {
+// 			newUsers = append(newUsers, users[i])
+// 		}
+// 		return newUsers, nil
+// 	}
 
-	return users, nil
-}
+// 	return users, nil
+// }
 
 // GetUserByID ...
 func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repository.UserOptions) (*repository.User, error) {
@@ -129,7 +130,7 @@ func (ur *UserRepo) GetUserByID(ctx context.Context, userID uuid.UUID, opts repo
 		sql.Where("created_from = ?", *opts.CreatedFrom)
 	}
 
-	err := sql.Select()
+	err := sql.ExcludeColumn(excludeColumns...).Select()
 	if err != nil {
 		if err == pg.ErrNoRows {
 			return nil, errors.FailedNoRows.AppendError(err)
@@ -235,7 +236,7 @@ func (ur *UserRepo) GetUserByEmailPassword(ctx context.Context, email string, pa
 func (ur *UserRepo) CreateUser(ctx context.Context, userPayload *repository.User) (*repository.User, error) {
 	var user repository.User
 
-	_, err := ur.Db.WithContext(ctx).Model(userPayload).Returning("*").Insert(&user)
+	_, err := ur.Db.WithContext(ctx).Model(userPayload).Returning(returnFields).Insert(&user)
 	if err != nil {
 		return nil, errors.FailedUserCreate.AppendError(err)
 	}
@@ -247,7 +248,7 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, userID uuid.UUID, userPayloa
 	userPayload["updated_at"] = time.Now()
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -262,7 +263,7 @@ func (ur *UserRepo) SetPassword(ctx context.Context, userID uuid.UUID, password 
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -279,7 +280,7 @@ func (ur *UserRepo) SetAccessToken(ctx context.Context, userID uuid.UUID, access
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -294,7 +295,7 @@ func (ur *UserRepo) SetUserStatus(ctx context.Context, userID uuid.UUID, isActiv
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -309,7 +310,7 @@ func (ur *UserRepo) SetUserRole(ctx context.Context, userID uuid.UUID, isAdmin b
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -324,7 +325,7 @@ func (ur *UserRepo) SetUserExpiry(ctx context.Context, userID uuid.UUID, expired
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserUpdate.AppendError(err)
 	}
@@ -339,7 +340,7 @@ func (ur *UserRepo) DeleteUser(ctx context.Context, userID uuid.UUID) (*reposito
 	}
 
 	var user repository.User
-	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning("*").Update(&user)
+	_, err := ur.Db.WithContext(ctx).Model(&userPayload).Table(userTable).Where("id = ?", userID).Returning(returnFields).Update(&user)
 	if err != nil {
 		return nil, errors.FailedUserDelete.AppendError(err)
 	}

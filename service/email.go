@@ -64,7 +64,6 @@ func NewEmailSvc(log logger.Logger) *EmailSvc {
 		SMTPPassword:   viper.GetString("mail.smtp_password"),
 	}
 	h := hermes.Hermes{
-		Theme: new(hermes.Flat),
 		Product: hermes.Product{
 			Name: viper.GetString("app.name"),
 			Link: viper.GetString("app.url"),
