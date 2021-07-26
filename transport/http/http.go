@@ -16,7 +16,7 @@ import (
 	"gitlab.com/renodesper/gokit-microservices/middleware/recover"
 	ctxUtil "gitlab.com/renodesper/gokit-microservices/util/ctx"
 	e "gitlab.com/renodesper/gokit-microservices/util/error"
-	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
 )
@@ -87,8 +87,8 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	RequestResetPasswordAuthEndpoint := m.Chain(middlewares)(endpoints.RequestResetPasswordAuthEndpoint)
 	r.Post("/reset-password", httptransport.NewServer(RequestResetPasswordAuthEndpoint, decodeRequestResetPasswordAuthRequest, encodeResponse, serverOpts...))
 
-	VerifyResetPasswordEndpoint := m.Chain(publicMiddlewares)(endpoints.VerifyResetPasswordEndpoint)
-	r.Get("/reset-password/:token", httptransport.NewServer(VerifyResetPasswordEndpoint, decodeVerifyTokenRequest, encodeVerifyResetPasswordResponse, serverOpts...))
+	VerifyResetPasswordEndpoint := m.Chain(middlewares)(endpoints.VerifyResetPasswordEndpoint)
+	r.Post("/reset-password/:token", httptransport.NewServer(VerifyResetPasswordEndpoint, decodeVerifyResetPasswordAuthRequest, encodeVerifyResetPasswordResponse, serverOpts...))
 
 	GetHealthCheckEndpoint := m.Chain(middlewares)(endpoints.GetHealthCheckEndpoint)
 	r.Get("/health", httptransport.NewServer(GetHealthCheckEndpoint, decodeNothing, encodeResponse, serverOpts...))
@@ -164,7 +164,7 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusNotFound)
 	json.NewEncoder(w).Encode(&resp.ErrorResponse{
-		Errors: []e.Error{errs.StatusNotFound.WithoutStackTrace()},
+		Errors: []e.Error{errors.StatusNotFound.WithoutStackTrace()},
 		Meta:   resp.PopulateMeta(r.Header.Get("X-Request-Id")),
 	})
 }

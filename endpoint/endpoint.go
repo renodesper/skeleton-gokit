@@ -43,7 +43,7 @@ func New(
 		LogoutAuthEndpoint:               MakeLogoutAuthEndpoint(oauthSvc),
 		RegisterAuthEndpoint:             MakeRegisterAuthEndpoint(oauthSvc),
 		VerifyRegistrationEndpoint:       MakeVerifyRegistrationEndpoint(verificationSvc, userSvc),
-		RequestResetPasswordAuthEndpoint: MakeRequestResetPasswordAuthEndpoint(oauthSvc, userSvc),
+		RequestResetPasswordAuthEndpoint: MakeRequestResetPasswordAuthEndpoint(oauthSvc),
 		VerifyResetPasswordEndpoint:      MakeVerifyResetPasswordEndpoint(verificationSvc, userSvc),
 		GetHealthCheckEndpoint:           MakeHealthCheckEndpoint(healthSvc),
 		CreateUserEndpoint:               MakeCreateUserEndpoint(userSvc),

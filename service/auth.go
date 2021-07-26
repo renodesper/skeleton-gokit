@@ -25,10 +25,11 @@ type (
 	}
 
 	OauthSvc struct {
-		Log          logger.Logger
-		User         postgre.UserRepository
-		Verification postgre.VerificationRepository
-		EmailSvc     *EmailSvc
+		Log             logger.Logger
+		User            postgre.UserRepository
+		Verification    postgre.VerificationRepository
+		EmailSvc        EmailService
+		VerificationSvc VerificationService
 	}
 )
 
@@ -36,25 +37,15 @@ type (
 func NewOauthService(log logger.Logger, db *pg.DB) OauthService {
 	userRepo := postgre.CreateUserRepository(log, db)
 	verificationRepo := postgre.CreateVerificationRepository(log, db)
-	emailSvc := NewEmailSvc(log)
+	emailSvc := NewEmailService(log)
+	verificationSvc := NewVerificationService(log, db)
 
 	return &OauthSvc{
-		Log:          log,
-		User:         userRepo,
-		Verification: verificationRepo,
-		EmailSvc:     emailSvc,
-	}
-}
-
-// NewOauthSvc creates auth service
-func NewOauthSvc(log logger.Logger, db *pg.DB) *OauthSvc {
-	userRepo := postgre.CreateUserRepository(log, db)
-	emailSvc := NewEmailSvc(log)
-
-	return &OauthSvc{
-		Log:      log,
-		User:     userRepo,
-		EmailSvc: emailSvc,
+		Log:             log,
+		User:            userRepo,
+		Verification:    verificationRepo,
+		EmailSvc:        emailSvc,
+		VerificationSvc: verificationSvc,
 	}
 }
 
@@ -129,7 +120,7 @@ func (o *OauthSvc) Register(ctx context.Context, username string, email string, 
 
 	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		return nil, errors.FailedGeneratePassword.AppendError(err)
 	}
 
 	if createdFrom == "" {
@@ -209,7 +200,7 @@ func (o *OauthSvc) RequestResetPassword(ctx context.Context, email string) (*rep
 		return nil, err
 	}
 
-	hEmail := o.EmailSvc.ResetPassword(user.Username, verificationToken.String())
+	hEmail := o.EmailSvc.RequestResetPassword(user.Username, verificationToken.String())
 	err = o.EmailSvc.SendMail(user.ID.String(), user.Email, constant.EmailSubjectResetPassword, hEmail, constant.EmailTypeResetPassword)
 	if err != nil {
 		return nil, err

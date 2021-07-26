@@ -10,7 +10,7 @@ import (
 	"github.com/go-playground/validator"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
 	ctxUtil "gitlab.com/renodesper/gokit-microservices/util/ctx"
-	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	resp "gitlab.com/renodesper/gokit-microservices/util/response"
 	"golang.org/x/oauth2"
 )
@@ -35,7 +35,7 @@ func decodeGoogleCallbackAuthRequest(_ context.Context, r *http.Request) (interf
 	code := r.FormValue("code")
 
 	if state != oauthState.Value {
-		return nil, errs.InvalidGoogleOauthState
+		return nil, errors.InvalidGoogleOauthState
 	}
 
 	var req endpoint.CallbackAuthRequest
@@ -61,13 +61,13 @@ func decodeLoginAuthRequest(_ context.Context, r *http.Request) (interface{}, er
 	var req endpoint.LoginAuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -77,13 +77,13 @@ func decodeLogoutAuthRequest(_ context.Context, r *http.Request) (interface{}, e
 	var req endpoint.LogoutAuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -93,13 +93,13 @@ func decodeRegisterAuthRequest(_ context.Context, r *http.Request) (interface{},
 	var req endpoint.RegisterAuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -109,13 +109,13 @@ func decodeRequestResetPasswordAuthRequest(_ context.Context, r *http.Request) (
 	var req endpoint.RequestResetPasswordAuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil

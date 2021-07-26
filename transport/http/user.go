@@ -10,20 +10,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/iancoleman/strcase"
 	"gitlab.com/renodesper/gokit-microservices/endpoint"
-	errs "gitlab.com/renodesper/gokit-microservices/util/errors"
+	"gitlab.com/renodesper/gokit-microservices/util/errors"
 )
 
 func decodeCreateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req endpoint.CreateUserRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -63,7 +63,7 @@ func decodeGetAllUsersRequest(_ context.Context, r *http.Request) (interface{}, 
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -96,13 +96,13 @@ func decodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, e
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -120,13 +120,13 @@ func decodeSetPasswordRequest(_ context.Context, r *http.Request) (interface{}, 
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -144,13 +144,13 @@ func decodeSetAccessTokenRequest(_ context.Context, r *http.Request) (interface{
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -168,13 +168,13 @@ func decodeSetUserStatusRequest(_ context.Context, r *http.Request) (interface{}
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -192,13 +192,13 @@ func decodeSetUserRoleRequest(_ context.Context, r *http.Request) (interface{}, 
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil
@@ -216,13 +216,13 @@ func decodeSetUserExpiryEndpoint(_ context.Context, r *http.Request) (interface{
 	req.ID = ID
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errs.UnparsableJSON
+		return nil, errors.UnparsableJSON
 	}
 	defer r.Body.Close()
 
 	validate = validator.New()
 	if err := validate.Struct(req); err != nil {
-		return nil, errs.InvalidRequest
+		return nil, errors.InvalidRequest
 	}
 
 	return req, nil

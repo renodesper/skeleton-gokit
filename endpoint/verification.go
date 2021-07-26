@@ -9,11 +9,17 @@ import (
 
 type (
 	VerifyTokenRequest struct {
-		Token string
+		Token string `json:"token" validate:"required"`
 	}
 
 	VerifyTokenResponse struct {
-		Token string
+		Token string `json:"token" validate:"required"`
+	}
+
+	VerifyResetPasswordRequest struct {
+		Token          string `json:"token" validate:"required"`
+		Password       string `json:"password" validate:"required"`
+		VerifyPassword string `json:"verifyPassword" validate:"required"`
 	}
 )
 
@@ -40,9 +46,9 @@ func MakeVerifyRegistrationEndpoint(verificationSvc service.VerificationService,
 // MakeVerifyResetPasswordEndpoint ...
 func MakeVerifyResetPasswordEndpoint(verificationSvc service.VerificationService, userSvc service.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(VerifyTokenRequest)
+		req := request.(VerifyResetPasswordRequest)
 
-		token, err := verificationSvc.VerifyResetPassword(ctx, req.Token)
+		token, err := verificationSvc.VerifyResetPassword(ctx, req.Token, req.Password, req.VerifyPassword)
 		if err != nil {
 			return nil, err
 		}

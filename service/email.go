@@ -9,6 +9,7 @@ import (
 
 	"github.com/matcornic/hermes/v2"
 	"github.com/spf13/viper"
+	"gitlab.com/renodesper/gokit-microservices/util/constant"
 	"gitlab.com/renodesper/gokit-microservices/util/errors"
 	"gitlab.com/renodesper/gokit-microservices/util/logger"
 	"gopkg.in/gomail.v2"
@@ -18,7 +19,8 @@ type (
 	EmailService interface {
 		SendMail(userID, userEmail, subject string, email hermes.Email, emailType string) error
 		Welcome(userName, token string) hermes.Email
-		ResetPassword(userName, token string) hermes.Email
+		RequestResetPassword(userName, token string) hermes.Email
+		ResetPasswordNotification(userName string) hermes.Email
 		Maintenance(userName string) hermes.Email
 		GenerateEmail(email hermes.Email, emailType string, userID string) error
 		Send(options SendOptions, htmlBody string, txtBody string) error
@@ -49,11 +51,11 @@ type (
 	}
 )
 
-var HTML_PATH_FORMAT = "static/%v_%v.html"
-var TXT_PATH_FORMAT = "static/%v_%v.txt"
+var HTML_PATH_FORMAT = "static/email/%v_%v.html"
+var TXT_PATH_FORMAT = "static/email/%v_%v.txt"
 
-// NewEmailSvc creates email service
-func NewEmailSvc(log logger.Logger) *EmailSvc {
+// NewEmailService creates email service
+func NewEmailService(log logger.Logger) EmailService {
 	port, _ := strconv.Atoi(viper.GetString("mail.smtp_port"))
 	smtpConfig := SmtpConfig{
 		Port:           port,
@@ -79,9 +81,13 @@ func NewEmailSvc(log logger.Logger) *EmailSvc {
 }
 
 func (e *EmailSvc) SendMail(userID, userEmail, subject string, email hermes.Email, emailType string) error {
+	if emailType != constant.EmailTypeResetPasswordNotification {
+		subject = fmt.Sprintf(subject, e.Hermes.Product.Name)
+	}
+
 	options := SendOptions{
 		To:      userEmail,
-		Subject: fmt.Sprintf(subject, e.Hermes.Product.Name),
+		Subject: subject,
 	}
 
 	err := e.GenerateEmail(email, emailType, userID)
@@ -202,7 +208,7 @@ func (e *EmailSvc) Welcome(userName, token string) hermes.Email {
 	}
 }
 
-func (e *EmailSvc) ResetPassword(userName, token string) hermes.Email {
+func (e *EmailSvc) RequestResetPassword(userName, token string) hermes.Email {
 	return hermes.Email{
 		Body: hermes.Body{
 			Name: userName,
@@ -220,6 +226,30 @@ func (e *EmailSvc) ResetPassword(userName, token string) hermes.Email {
 			},
 			Outros: []string{
 				"If you did not request a password reset, no further action is required on your part.",
+			},
+			Signature: "Best regards",
+		},
+	}
+}
+
+func (e *EmailSvc) ResetPasswordNotification(userName string) hermes.Email {
+	host := viper.GetString("app.host")
+	hostEmail := fmt.Sprintf("support@%s", host)
+
+	return hermes.Email{
+		Body: hermes.Body{
+			Name: userName,
+			Intros: []string{
+				"Your password has been reset.",
+			},
+			Actions: []hermes.Action{
+				{
+					Instructions: "If you did not request this action, please contact us immediately.",
+					Button: hermes.Button{
+						Text: "Contact Us!",
+						Link: fmt.Sprintf("mailto:%s", hostEmail),
+					},
+				},
 			},
 			Signature: "Best regards",
 		},

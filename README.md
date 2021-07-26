@@ -21,8 +21,8 @@ This project was created to accommodates the needs of a bootstrap structure for 
 - [x] Login Auth Endpoint
 - [x] Logout Auth Endpoint
 - [x] Request Reset Password Endpoint
-- [x] Email notification before registration or forgot password
-- [ ] Email notification after registration or forgot password
+- [x] Email notification before requesting reset password
+- [x] Email notification after registration or reset password
 - [x] Email title header has wrong color
 - [x] Remove password, access_token, and refresh_token before returning user(s)
 

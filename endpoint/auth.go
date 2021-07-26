@@ -34,7 +34,7 @@ type (
 	}
 
 	RequestResetPasswordAuthRequest struct {
-		Email string `validate:"required"`
+		Email string `json:"email" validate:"required"`
 	}
 )
 
@@ -102,7 +102,7 @@ func MakeRegisterAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
 	}
 }
 
-func MakeRequestResetPasswordAuthEndpoint(oauthSvc service.OauthService, userSvc service.UserService) endpoint.Endpoint {
+func MakeRequestResetPasswordAuthEndpoint(oauthSvc service.OauthService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(RequestResetPasswordAuthRequest)
 

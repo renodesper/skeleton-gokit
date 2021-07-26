@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
@@ -14,7 +15,7 @@ type (
 	VerificationRepository interface {
 		GetVerification(ctx context.Context, verificationType, token string, isActive bool) (*repository.Verification, error)
 		CreateVerification(ctx context.Context, verificationPayload *repository.Verification) (*repository.Verification, error)
-		Invalidate(ctx context.Context, verificationID uuid.UUID, verificationPayload map[string]interface{}) error
+		Invalidate(ctx context.Context, verificationID uuid.UUID) error
 	}
 
 	VerificationRepo struct {
@@ -64,7 +65,12 @@ func (vr *VerificationRepo) CreateVerification(ctx context.Context, verification
 	return &verification, nil
 }
 
-func (vr *VerificationRepo) Invalidate(ctx context.Context, verificationID uuid.UUID, verificationPayload map[string]interface{}) error {
+func (vr *VerificationRepo) Invalidate(ctx context.Context, verificationID uuid.UUID) error {
+	verificationPayload := map[string]interface{}{
+		"is_active":  false,
+		"updated_at": time.Now(),
+	}
+
 	var verification repository.Verification
 	_, err := vr.Db.WithContext(ctx).Model(&verificationPayload).Table(verificationTable).Where("id = ?", verificationID).Returning("*").Update(&verification)
 	if err != nil {

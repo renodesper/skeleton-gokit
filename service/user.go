@@ -102,7 +102,7 @@ func (us *UserSvc) CreateUser(ctx context.Context, payload *CreateUserRequest) (
 
 	password, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		return nil, errors.FailedGeneratePassword.AppendError(err)
 	}
 
 	userPayload := repository.User{
@@ -153,7 +153,7 @@ func (us *UserSvc) UpdateUser(ctx context.Context, userID uuid.UUID, payload *Up
 	if payload.Password != "" {
 		password, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
 		if err != nil {
-			return nil, err
+			return nil, errors.FailedGeneratePassword.AppendError(err)
 		}
 
 		userPayload["password"] = string(password)
@@ -174,7 +174,7 @@ func (us *UserSvc) SetPassword(ctx context.Context, userID uuid.UUID, password, 
 
 	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		return nil, errors.FailedGeneratePassword.AppendError(err)
 	}
 
 	user, err := us.User.SetPassword(ctx, userID, string(passwd))
