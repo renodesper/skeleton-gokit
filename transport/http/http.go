@@ -141,9 +141,8 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 
 func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 	er := err.(e.Error)
-	status := er.Status
-	if status == 0 {
-		status = 500
+	if er.Status == 0 {
+		er.Status = 500
 	}
 
 	if viper.GetString("app.env") == "production" {
@@ -154,7 +153,8 @@ func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(w).Encode(&resp.ErrorResponse{
+
+	_ = json.NewEncoder(w).Encode(&resp.ErrorResponse{
 		Errors: []e.Error{er},
 		Meta:   resp.PopulateMeta(requestID),
 	})
@@ -163,7 +163,8 @@ func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
 func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/vnd.api+json")
 	w.WriteHeader(http.StatusNotFound)
-	json.NewEncoder(w).Encode(&resp.ErrorResponse{
+
+	_ = json.NewEncoder(w).Encode(&resp.ErrorResponse{
 		Errors: []e.Error{errors.StatusNotFound.WithoutStackTrace()},
 		Meta:   resp.PopulateMeta(r.Header.Get("X-Request-Id")),
 	})

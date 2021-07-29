@@ -20,7 +20,7 @@ RESET   := $(shell tput -Txterm sgr0)
 
 all: help
 
-lint: lint-go lint-dockerfile lint-yaml
+lint: lint-go lint-dockerfile
 
 lint-dockerfile:
 # If dockerfile is present we lint it.

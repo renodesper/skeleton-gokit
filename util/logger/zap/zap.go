@@ -22,7 +22,7 @@ func CreateLogger(env string, level string) (logger.Logger, error) {
 func SyncLogger(l logger.Logger) error {
 	z, ok := l.(*zap.SugaredLogger)
 	if !ok {
-		return errors.New("Unexpected logger type")
+		return errors.New("unexpected logger type")
 	}
 
 	return z.Sync()
@@ -50,6 +50,12 @@ func createConfig(env string, level string) *zap.Config {
 	case logger.Error:
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 	}
+
+	// if output_file != "" {
+	// 	cfg.OutputPaths = []string{
+	// 		output_file,
+	// 	}
+	// }
 
 	return &cfg
 }

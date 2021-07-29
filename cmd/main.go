@@ -21,10 +21,8 @@ import (
 )
 
 var (
-	host   *string
-	port   *int
-	dbUri  *string
-	dbName *string
+	host *string
+	port *int
 )
 
 // Run ...
