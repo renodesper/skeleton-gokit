@@ -4,27 +4,14 @@ This project was created to accommodates the needs of a bootstrap structure for 
 
 ## Todo
 
-- [x] Get Health Check Endpoint
-- [x] Create User Endpoint
-- [x] Get All Users Endpoint
-- [x] Get User Endpoint
-- [x] Update User Endpoint
-- [x] Set Access Token Endpoint
-- [x] Set User Status Endpoint
-- [x] Set User Role Endpoint
-- [x] Set User Expiry Endpoint
-- [x] Delete User Endpoint
-- [x] Google Login Auth Endpoint
-- [x] Google Callback Auth Endpoint
-- [x] Register Auth Endpoint
-- [x] Account Verification Endpoint
-- [x] Login Auth Endpoint
-- [x] Logout Auth Endpoint
-- [x] Request Reset Password Endpoint
-- [x] Email notification before requesting reset password
-- [x] Email notification after registration or reset password
-- [x] Email title header has wrong color
-- [x] Remove password, access_token, and refresh_token before returning user(s)
+- [ ] Add testing
+- [ ] Add more testing 😂
+- [ ] Add new type of logging (ex: log to ELK)
+- [ ] Add system monitoring and alerting toolkit implementation (prometheus)
+- [ ] Add circuit breaker implementation
+- [ ] Add rate limiter implementation
+- [ ] Add service discovery implementation (consul, etcd, zookeeper, etc)
+- [ ] 2FA
 
 ## Setup database
 
