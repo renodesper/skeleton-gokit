@@ -48,7 +48,7 @@ func main() {
 	dbHost := viper.GetString("db.host")
 	dbPort := viper.GetInt("db.port")
 	dbName := viper.GetString("db.name")
-	db := initDB(dbUsername, dbPassword, dbHost, dbPort, dbName)
+	db := initDB(log, dbUsername, dbPassword, dbHost, dbPort, dbName)
 	defer db.Close()
 
 	healthSvc := service.NewHealthService()
@@ -120,7 +120,7 @@ func initLogger(env, level string) (logger.Logger, error) {
 	return ls, nil
 }
 
-func initDB(username, password, host string, port int, dbName string) *pg.DB {
-	db := postgre.NewPostgreClient(username, password, host, port, dbName)
+func initDB(log logger.Logger, username, password, host string, port int, dbName string) *pg.DB {
+	db := postgre.NewPostgreClient(log, username, password, host, port, dbName)
 	return db
 }

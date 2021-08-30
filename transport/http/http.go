@@ -39,7 +39,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	// NOTE: Will be executed on the HTTP response writer after the endpoint is invoked, but before anything written to the client
 	serverResponseOpts := []httptransport.ServerResponseFunc{
-		httptransport.SetContentType("application/vnd.api+json"),
+		httptransport.SetContentType("application/json"),
 	}
 
 	serverOpts := []httptransport.ServerOption{

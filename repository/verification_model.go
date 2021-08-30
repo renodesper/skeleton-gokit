@@ -8,7 +8,7 @@ import (
 
 type (
 	Verification struct {
-		TableName struct{} `pg:"verification"`
+		tableName struct{} `pg:"verification"`
 
 		ID        uuid.UUID `db:"id" json:"id"`
 		UserID    uuid.UUID `db:"userId" json:"userId"`

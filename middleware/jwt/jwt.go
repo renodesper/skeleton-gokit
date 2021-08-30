@@ -15,20 +15,13 @@ func CreateMiddleware(log logger.Logger) endpoint.Middleware {
 		return func(ctx context.Context, request interface{}) (interface{}, error) {
 			jwtToken := ctxUtil.GetJwtToken(ctx)
 
-			// NOTE: identity is the id of user
-			identity, err := authUtil.ParseJWTWithClaims(jwtToken)
+			// NOTE: the first return valus is identity which is the id of user
+			_, err := authUtil.ParseJWTWithClaims(jwtToken)
 			if err != nil {
 				return nil, err
 			}
 
-			log.Info(identity)
-
-			// TODO: Check user existence in DB
-			// ...
-
-			// TODO: Store identity into context
-			// ...
-
+			// NOTE: Store identity into context if needed
 			response, err := next(ctx, request)
 			return response, err
 		}

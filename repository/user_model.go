@@ -8,7 +8,7 @@ import (
 
 type (
 	User struct {
-		TableName struct{} `pg:"user"`
+		tableName struct{} `pg:"user"`
 
 		ID           uuid.UUID `db:"id" json:"id"`
 		Username     string    `db:"username" json:"username"`
