@@ -34,7 +34,7 @@ func decodeGoogleCallbackAuthRequest(_ context.Context, r *http.Request) (interf
 	state := r.FormValue("state")
 	code := r.FormValue("code")
 
-	if state != oauthState.Value {
+	if oauthState == nil || state != oauthState.Value {
 		return nil, errors.InvalidGoogleOauthState
 	}
 

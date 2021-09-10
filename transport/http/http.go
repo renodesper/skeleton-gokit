@@ -66,10 +66,10 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	// NOTE: Routes
 	r.NotFound(http.HandlerFunc(notFound))
 
-	GoogleLoginAuthEndpoint := m.Chain(middlewares)(endpoints.GoogleLoginAuthEndpoint)
+	GoogleLoginAuthEndpoint := m.Chain(publicMiddlewares)(endpoints.GoogleLoginAuthEndpoint)
 	r.Get("/auth/google", httptransport.NewServer(GoogleLoginAuthEndpoint, decodeNothing, encodeGoogleLoginAuthResponse, serverOpts...))
 
-	GoogleCallbackAuthEndpoint := m.Chain(middlewares)(endpoints.GoogleCallbackAuthEndpoint)
+	GoogleCallbackAuthEndpoint := m.Chain(publicMiddlewares)(endpoints.GoogleCallbackAuthEndpoint)
 	r.Get("/auth/google/callback", httptransport.NewServer(GoogleCallbackAuthEndpoint, decodeGoogleCallbackAuthRequest, encodeResponse, serverOpts...))
 
 	LoginAuthEndpoint := m.Chain(middlewares)(endpoints.LoginAuthEndpoint)
