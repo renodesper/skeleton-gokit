@@ -2,10 +2,7 @@ image: golang:1.16
 
 cache:
   paths:
-    - /go/src/github.com
-    - /go/src/golang.org
-    - /go/src/google.golang.org
-    - /go/src/gopkg.in
+    - /go/src
 
 stages:          # List of stages for jobs, and their order of execution
   - test
@@ -18,8 +15,10 @@ unit-test-job:   # This job runs in the test stage.
 
 lint-test-job:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
+  image: docker:latest
+  services:
+    - docker:dind
   script:
-    - echo "Installing docker..."
-    - apt install -y docker
+    - apk add --update make ncurses go
     - echo "Linting code..."
     - make lint
