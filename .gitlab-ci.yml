@@ -1,4 +1,4 @@
-image: golang:1.16
+image: golang:1.17-alpine
 
 cache:
   paths:
@@ -10,6 +10,8 @@ stages:          # List of stages for jobs, and their order of execution
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
+    - echo "Installing dependencies..."
+    - apk add --no-cache build-base make gcc
     - echo "Running unit tests..."
     - make test
 
@@ -19,6 +21,7 @@ lint-test-job:   # This job also runs in the test stage.
   services:
     - docker:dind
   script:
-    - apk add --update make ncurses go
+    - echo "Installing dependencies..."
+    - apk add --no-cache make ncurses go
     - echo "Linting code..."
     - make lint

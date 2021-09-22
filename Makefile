@@ -28,12 +28,12 @@ ifeq ($(shell test -e ./Dockerfile && echo -n yes),yes)
 	$(eval CONFIG_OPTION = $(shell [ -e $(shell pwd)/.hadolint.yaml ] && echo "-v $(shell pwd)/.hadolint.yaml:/root/.config/hadolint.yaml" || echo "" ))
 	$(eval OUTPUT_OPTIONS = $(shell [ "${EXPORT_RESULT}" == "true" ] && echo "--format checkstyle" || echo "" ))
 	$(eval OUTPUT_FILE = $(shell [ "${EXPORT_RESULT}" == "true" ] && echo "| tee /dev/tty > checkstyle-report.xml" || echo "" ))
-	docker run --rm -i $(CONFIG_OPTION) hadolint/hadolint hadolint $(OUTPUT_OPTIONS) - < ./Dockerfile $(OUTPUT_FILE)
+	docker run --rm -i $(CONFIG_OPTION) hadolint/hadolint hadolint --ignore DL3007 --ignore DL3018 $(OUTPUT_OPTIONS) - < ./Dockerfile $(OUTPUT_FILE)
 endif
 
 lint-go:
 	$(eval OUTPUT_OPTIONS = $(shell [ "${EXPORT_RESULT}" == "true" ] && echo "--out-format checkstyle ./... | tee /dev/tty > checkstyle-report.xml" || echo "" ))
-	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:latest-alpine golangci-lint run --deadline=65s $(OUTPUT_OPTIONS)
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:latest-alpine golangci-lint run --deadline=65s -D structcheck $(OUTPUT_OPTIONS)
 
 lint-yaml:
 ifeq ($(EXPORT_RESULT), true)
@@ -70,6 +70,9 @@ build:
 	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
 	CGO_ENABLED=0 GO111MODULE=on $(GOCMD) build -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
+
+release:
+	@echo 'Not implemented yet'
 
 docker-build:
 	docker build --rm --tag $(BINARY_NAME) .

@@ -1,7 +1,7 @@
-FROM golang:1.16-alpine as builder
+FROM golang:1.17-alpine as builder
 
 # Add ca certificates and timezone data files
-RUN apk add ncurses make
+RUN apk add --no-cache ncurses make
 
 WORKDIR /go/src/gitlab.com/renodesper/gokit-microservices
 COPY . .
@@ -11,7 +11,7 @@ RUN rm -rf vendor .vendor* \
   && make build
 
 # Copy into the base image
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/base:latest
 
 # Copy the bin file
 COPY --from=builder /go/src/gitlab.com/renodesper/gokit-microservices/build/skeletond /skeletond
