@@ -1,11 +1,12 @@
 image: golang:1.17-alpine
 
+stages:          # List of stages for jobs, and their order of execution
+  - test
+  - release
+
 cache:
   paths:
     - /go/src
-
-stages:          # List of stages for jobs, and their order of execution
-  - test
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
@@ -25,3 +26,16 @@ lint-test-job:   # This job also runs in the test stage.
     - apk add --no-cache make ncurses go
     - echo "Linting code..."
     - make lint
+
+release-job:
+  stage: release
+  image:
+    name: goreleaser/goreleaser
+    entrypoint: ['']
+  only:
+    - tags
+  variables:
+    GIT_DEPTH: 0 # Disable shallow cloning so that goreleaser can diff between tags to generate a changelog.
+  script:
+    - echo "Releasing binaries..."
+    - goreleaser -f .goreleaser.yml --rm-dist
