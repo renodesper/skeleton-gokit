@@ -11,7 +11,7 @@ RUN rm -rf vendor .vendor* \
   && make build
 
 # Copy into the base image
-FROM gcr.io/distroless/base:latest
+FROM gcr.io/distroless/static:latest
 
 # Copy the bin file
 COPY --from=builder /go/src/gitlab.com/renodesper/gokit-microservices/build/skeletond /skeletond

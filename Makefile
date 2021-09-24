@@ -65,11 +65,12 @@ endif
 
 vendor:
 	$(GOCMD) mod vendor
+	$(GOCMD) mod tidy
 
 build:
 	mkdir -p $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)/*
-	CGO_ENABLED=0 GO111MODULE=on $(GOCMD) build -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
+	CGO_ENABLED=0 GO111MODULE=on $(GOCMD) build -ldflags="-s -w" -mod vendor -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd
 
 release:
 	@echo 'Not implemented yet'

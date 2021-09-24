@@ -12,7 +12,7 @@ logo = ""
 [db]
 username = "user"
 password = "password"
-host = "0.0.0.0"
+host = "postgres-svc"
 port = 5432
 name = "project"
 
