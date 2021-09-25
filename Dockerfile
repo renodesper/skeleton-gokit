@@ -1,6 +1,6 @@
 FROM golang:1.17-alpine as builder
 
-# Add ca certificates and timezone data files
+# I use Makefile and tput, so I need to install them
 RUN apk add --no-cache ncurses make
 
 WORKDIR /go/src/gitlab.com/renodesper/gokit-microservices
