@@ -1,0 +1,8 @@
+@startuml
+!include https://raw.githubusercontent.com/renodesper/puml-themes/master/themes/puml-theme-mars.puml
+
+Client -> UserSvc: Login via Google Oauth
+UserSvc --> UserSvc: Populate Google Oauth config
+UserSvc --> UserSvc: Generate cookie
+UserSvc --> Client: Store cookie and\nreturn Google Oauth url
+@enduml

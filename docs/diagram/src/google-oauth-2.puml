@@ -1,0 +1,34 @@
+@startuml
+!include https://raw.githubusercontent.com/renodesper/puml-themes/master/themes/puml-theme-mars.puml
+
+Client -> Google: Login via Google Oauth url
+
+alt failed case
+  Google -> Client: Unauthorized
+else success case
+  Google --> UserSvc: Send Google Oauth Code
+  UserSvc --> Google: Verify Google Oauth Code
+
+  alt not verified case
+    Google -> UserSvc: Unauthorized
+    UserSvc -> Client: Unauthorized
+  else verified case
+    Google --> UserSvc: Authorized
+    UserSvc --> Google: Request user data
+    Google --> UserSvc: User data
+  end
+end
+
+UserSvc --> Database: Get user by email
+Database --> UserSvc: User data
+
+alt not found case
+  UserSvc -> Database: Register user
+  Database --> UserSvc: User data
+end
+
+UserSvc --> UserSvc: Generate JWT token
+UserSvc --> Database: Store JWT token
+Database --> UserSvc: User data
+UserSvc --> Client: JWT token (access & refresh tokens)
+@enduml
